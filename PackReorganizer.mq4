@@ -10,26 +10,34 @@
 #property version   "1.00"
 #property strict
 
-extern int ex_magic_no = 12345;
-extern int ex_tp1 = 10;
-extern int ex_tp2 = 20;
-extern int ex_tp3 = 30;
+extern int ex_magic_no = 12345;  ///< Magic number of target orders
+extern int ex_tp1 = 10;          ///< Take profit pips 1
+extern int ex_tp2 = 20;          ///< Take profit pips 2
+extern int ex_tp3 = 30;          ///< Take profit pips 3
 
-/*! 
-   Pack class; represents a package
-*/
+/*! Pack class; represents a package */
 class Pack{
    int imTicketarray [] ;  ///< An array to hold ticket number of orders of the package
    string smSymbols [] ;   ///< An array to hold symbols of orders of the package
    int counter ;           ///< Number of orders in the package
 public:
+   /*!Default constructor*/
    Pack(){}
-   /*!
+   /*!Checks whether given position can be inserted to the package or not
+      \param Ticket number 
+      \return True if the position with given ticket number can be inserted to the package; false otherwise 
    */
    bool isInsertable(const int);
+   /*!\return Number of positions*/
    int GetSize();
+   /*!Adds given position to the pack
+      \param Ticket number
+      \return If successful: number of positions; otherwise -1
+   */
    int Add(const int);
+   /*!Displays the package*/
    void Display();
+   /*!Closes all the positions in the package*/
    bool ClosePack(void);
 };
 
@@ -79,43 +87,6 @@ void Pack::Display(void){
    
 }
 
-
-string getRandomOrder()
-{
-	static const string mp[28] = { "EURUSD", "GBPUSD", "USDJPY", "USDCHF", "AUDUSD", "USDCAD", "NZDUSD",
-		"EURGBP", "EURJPY", "EURCHF", "EURAUD", "EURCAD", "EURNZD",
-		"GBPJPY", "GBPCHF", "GBPAUD", "GBPCAD", "GBPNZD",
-		"CHFJPY", "AUDJPY", "CADJPY", "NZDJPY",
-		"AUDCHF", "CADCHF", "NZDCHF",
-		"AUDCAD", "NZDCAD",
-		"AUDNZD" };
-	return mp[MathRand() % 28];
-}
-
-int pack_index = 0;
-Pack p;
-Pack p_arr[];
-
-void PackReorginize(void)
-{
-   for (int k = OrdersTotal() - 1; k >= 0; --k) {
-      if (!OrderSelect(k, SELECT_BY_POS, MODE_TRADES)) {
-      	Alert("Emir secilemedi... Hata kodu : ", GetLastError());
-      	continue;
-      }
-      if(OrderMagicNumber() == ex_magic_no && StringToInteger(StringSubstr(OrderComment(), 2)) == ex_magic_no){
-         int i;
-         for(i = 0; i < pack_index; i++){
-            if (p_arr[i].isInsertable(OrderTicket())){ 
-               p_arr[i].Add(OrderTicket());
-               break;
-            }
-         }//end pack array traverse for
-         if (i==pack_index) p_arr[pack_index++].Add(OrderTicket());
-      }      
-   }// end order total for
-}
-
 bool Pack::ClosePack(void)
 {
    for(int i = 0; i < counter; i++){
@@ -146,8 +117,53 @@ bool Pack::ClosePack(void)
    return false;
 }
 
+/*!A global function to get a random parity 
+   \return A random parity
+*/
+string getRandomOrder()
+{
+	static const string mp[28] = { "EURUSD", "GBPUSD", "USDJPY", "USDCHF", "AUDUSD", "USDCAD", "NZDUSD",
+		"EURGBP", "EURJPY", "EURCHF", "EURAUD", "EURCAD", "EURNZD",
+		"GBPJPY", "GBPCHF", "GBPAUD", "GBPCAD", "GBPNZD",
+		"CHFJPY", "AUDJPY", "CADJPY", "NZDJPY",
+		"AUDCHF", "CADCHF", "NZDCHF",
+		"AUDCAD", "NZDCAD",
+		"AUDNZD" };
+	return mp[MathRand() % 28];
+}
+
+int pack_index = 0;
+Pack p;
+Pack p_arr[];
+
+/*! A global function to re-organize packages. Traveses all open orders and 
+places target orders whose magic number matches the desired magic number ex_magic_no
+to the first available package. Creates a new package if all packages are full or 
+none is available and places the order to that new package.
+*/
+void PackReorginize(void)
+{
+   for (int k = OrdersTotal() - 1; k >= 0; --k) {
+      if (!OrderSelect(k, SELECT_BY_POS, MODE_TRADES)) {
+      	Alert("Emir secilemedi... Hata kodu : ", GetLastError());
+      	continue;
+      }
+      if(OrderMagicNumber() == ex_magic_no && StringToInteger(StringSubstr(OrderComment(), 2)) == ex_magic_no){
+         int i;
+         for(i = 0; i < pack_index; i++){
+            if (p_arr[i].isInsertable(OrderTicket())){ 
+               p_arr[i].Add(OrderTicket());
+               break;
+            }
+         }//end pack array traverse for
+         if (i==pack_index) p_arr[pack_index++].Add(OrderTicket());
+      }      
+   }// end order total for
+}
+
+/*! Expert initialization function */   
 int OnInit()
-  {
+{
    int ticket = -1;
    for (int i=0; i<50; i++){
       string sym = getRandomOrder();
@@ -156,20 +172,18 @@ int OnInit()
       if (ticket < 0) Print(sym, " Paritesinde emir acilamadi. Hata kodu = ", GetLastError());
    }      
    return(INIT_SUCCEEDED);
-  }
-//+------------------------------------------------------------------+
-//| Expert deinitialization function                                 |
-//+------------------------------------------------------------------+
+}
+
+/*! Expert deinitialization function */                           
 void OnDeinit(const int reason)
-  {
+{
       
    
-  }
-//+------------------------------------------------------------------+
-//| Expert tick function                                             |
-//+------------------------------------------------------------------+
+}
+
+/*! Expert tick function */                                          
 void OnTick()
 {
    
 }
-//+------------------------------------------------------------------+
+
