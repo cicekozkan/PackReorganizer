@@ -1,2 +1,2 @@
-# PackReorginizer
+# PackReorganizer
 MQL project development repository
