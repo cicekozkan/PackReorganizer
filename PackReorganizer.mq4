@@ -23,17 +23,9 @@ class Pack{
 public:
    /*!Default constructor*/
    Pack(){}
-   /*!Checks whether given position can be inserted to the package or not
-      \param Ticket number 
-      \return True if the position with given ticket number can be inserted to the package; false otherwise 
-   */
    bool isInsertable(const int);
    /*!\return Number of positions*/
-   int GetSize();
-   /*!Adds given position to the pack
-      \param Ticket number
-      \return If successful: number of positions; otherwise -1
-   */
+   int GetSize(){return counter;}
    int Add(const int);
    /*!Displays the package*/
    void Display();
@@ -41,6 +33,10 @@ public:
    bool ClosePack(void);
 };
 
+/*! Checks whether given position can be inserted to the package or not
+   \param cTicket Ticket number 
+   \return True if the position with given ticket number can be inserted to the package; false otherwise 
+*/
 bool Pack::isInsertable(const int cTicket){
    int ticketArraySize = ArraySize(imTicketarray);
    
@@ -65,6 +61,10 @@ bool Pack::isInsertable(const int cTicket){
  return true;  
 }
 
+/*!Adds given position to the pack
+   \param cTicket Ticket number
+   \return If successful: number of positions; otherwise -1
+*/
 int Pack::Add(const int cTicket){
 
    imTicketarray[counter] = cTicket;
@@ -117,6 +117,48 @@ bool Pack::ClosePack(void)
    return false;
 }
 
+// ------------------------------------------- PACK VECTOR CLASS --------------------------------------------------------- //
+/*! Represents a pack vector */
+class PackVector {
+   Pack m_pack[];    ///< An array of Packs
+   int m_index;      ///< index
+public:
+   /*! Default constructor. Initializes the vector with 0 Packs*/
+   PackVector() : m_index(0) {}
+   void push_back(int ticket);
+   Pack *operator[](int index);
+   void remove(int index);
+};
+
+/*! Mmics C++ vector<> push_back method. Places given position 
+   to the vector. **TODO**: Should place a package to the vector not
+   a position
+   \param ticket Ticket number
+*/
+void PackVector::push_back(const int ticket)
+{
+   m_pack[m_index++].add(ticket);
+}
+
+/*! 
+   \param index Index of the package in the vector
+   \return Selected pack's pointer   
+*/
+Pack *PackVector::operator[](const int index)
+{
+   return &m_pack[index];
+}
+
+/*!Remove selected package from the vector
+   \param index Index of the package in the vector
+*/
+void PackVector::remove(int index)
+{
+   
+}
+
+// ------------------------------------------ GLOBAL FUNCTIONS ------------------------------------------------- //
+
 /*!A global function to get a random parity 
    \return A random parity
 */
@@ -161,6 +203,8 @@ void PackReorginize(void)
    }// end order total for
 }
 
+// ------------------------------------------------- EXPERT FUNCTIONS ----------------------------------------------- //
+
 /*! Expert initialization function */   
 int OnInit()
 {
@@ -177,8 +221,7 @@ int OnInit()
 /*! Expert deinitialization function */                           
 void OnDeinit(const int reason)
 {
-      
-   
+        
 }
 
 /*! Expert tick function */                                          
