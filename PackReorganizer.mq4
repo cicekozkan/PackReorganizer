@@ -137,7 +137,7 @@ public:
 */
 void PackVector::push_back(const int ticket)
 {
-   m_pack[m_index++].add(ticket);
+   m_pack[m_index++].Add(ticket);
 }
 
 /*! 

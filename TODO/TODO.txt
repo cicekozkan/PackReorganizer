@@ -1,0 +1,6 @@
+Arkadaslar yapilmasi gerektigini dusundugunuz aksiyonlari buraya yeni bir sayi ile baslayip girebilirsiniz. 
+Her yazdiginiz aksiyonun basina isim bas harflerinizi [] icinde yazin. O konu hakkinda yorum yapmak isteyenler ayni 
+sayi altinda kendi bas harfleri ile dusunduklerini/yorumlarini yazarak daha guzel, verimli implementasyonlar yapilabilir.
+
+1) [OC] Pack vectorun push_back uye fonksiyonu arguman olarak pack pointer almali. C++ prototipi void push_back( const T& value );
+MQL de referans olmadigi icin pointer almaliyiz.
