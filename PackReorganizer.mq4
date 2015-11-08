@@ -157,6 +157,10 @@ void PackVector::remove(int index)
    
 }
 
+int pack_index = 0;
+Pack p;
+Pack p_arr[];
+
 // ------------------------------------------ GLOBAL FUNCTIONS ------------------------------------------------- //
 
 /*!A global function to get a random parity 
@@ -173,10 +177,6 @@ string getRandomOrder()
 		"AUDNZD" };
 	return mp[MathRand() % 28];
 }
-
-int pack_index = 0;
-Pack p;
-Pack p_arr[];
 
 /*! A global function to re-organize packages. Traveses all open orders and 
 places target orders whose magic number matches the desired magic number ex_magic_no
