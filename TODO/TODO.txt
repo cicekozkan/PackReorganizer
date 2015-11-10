@@ -18,7 +18,8 @@ getRandomOrder cagrilarak yapilan 50 tane random emir acma islemini bir test fon
 4) DONE 10/11/2015
 [OC] Butun hard-coded degerleri degiskenlere ata. Ornek olarak random acilan emir sayisi. 08/11/2015
 
-5) [OC] Global bir pack vector degiskeni tamamla ve PackReorginize() global fonksiyonunda bu degiskeni kullan. Asagidaki 
+5) DONE 11/11/2015
+[OC] Global bir pack vector degiskeni tamamla ve PackReorginize() global fonksiyonunda bu degiskeni kullan. Asagidaki 
 global degiskenlere hic ihtiyac kalmamali: 08/11/2015
 	int pack_index = 0;
 	Pack p;

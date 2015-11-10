@@ -130,6 +130,8 @@ public:
    void PackVector::push_back(Pack *value);
    Pack *operator[](int index);
    void remove(int index);
+   /*!\return Number of packages inside the vector*/
+   int size(void){return m_index;}
 };
 
 /*! Mmics C++ vector<> push_back method. Places given pack 
@@ -158,9 +160,7 @@ void PackVector::remove(int index)
    
 }
 
-int pack_index = 0;
-Pack p;
-Pack p_arr[];
+PackVector pvec;  ///< Global PackVector class object
 
 // ------------------------------------------ GLOBAL FUNCTIONS ------------------------------------------------- //
 
@@ -178,13 +178,16 @@ void PackReorginize(void)
       }
       if(OrderMagicNumber() == ex_magic_no && StringToInteger(StringSubstr(OrderComment(), 2)) == ex_magic_no){
          int i;
-         for(i = 0; i < pack_index; i++){
-            if (p_arr[i].isInsertable(OrderTicket())){ 
-               p_arr[i].Add(OrderTicket());
+         for(i = 0; i < pvec.size(); i++){
+            if (pvec[i].isInsertable(OrderTicket())){ 
+               pvec[i].Add(OrderTicket());
                break;
             }
          }//end pack array traverse for
-         if (i==pack_index) p_arr[pack_index++].Add(OrderTicket());
+         if (i==pvec.size()) {
+            pvec.push_back(new Pack);
+            pvec[i].Add(OrderTicket());
+         }
       }      
    }// end order total for
 }
