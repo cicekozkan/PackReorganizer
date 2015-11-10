@@ -13,7 +13,8 @@ C++ prototipi void push_back( const T& value ); MQL de referans olmadigi icin po
 3) [OC] Test amacli yazilan fonksiyonlari t_function() seklinde isimlendir. Daha sonra baska bir dosyaya tasi. Ilk olarak 
 getRandomOrder cagrilarak yapilan 50 tane random emir acma islemini bir test fonksiyonuna tasi
 
-4) [OC] Butun hard-coded degerleri degiskenlere ata. Ornek olarak random acilan emir sayisi
+4) DONE 
+[OC] Butun hard-coded degerleri degiskenlere ata. Ornek olarak random acilan emir sayisi
 
 5) [OC] Global bir pack vector degiskeni tamamla ve PackReorginize() global fonksiyonunda bu degiskeni kullan. Asagidaki 
 global degiskenlere hic ihtiyac kalmamali:

@@ -10,6 +10,9 @@
 #property version   "1.00"
 #property strict
 
+#define  MAX_ORDERS_IN_A_PACK 4
+#define  MAX_NUM_TRIALS 3
+
 extern int ex_magic_no = 12345;  ///< Magic number of target orders
 extern int ex_tp1 = 10;          ///< Take profit pips 1
 extern int ex_tp2 = 20;          ///< Take profit pips 2
@@ -40,7 +43,7 @@ public:
 bool Pack::isInsertable(const int cTicket){
    int ticketArraySize = ArraySize(imTicketarray);
    
-   if(ticketArraySize == 4)
+   if(ticketArraySize == MAX_ORDERS_IN_A_PACK)
       return false;
    if(ticketArraySize == 0)
       return true;
@@ -84,7 +87,6 @@ void Pack::Display(void){
 
    for(int i =0 ; i < ArraySize(smSymbols);++i )
    Print(smSymbols[i]);
-   
 }
 
 bool Pack::ClosePack(void)
@@ -99,7 +101,7 @@ bool Pack::ClosePack(void)
 	   int optype = OrderType();
 	   int k = 0;
 	   double close_price;
-	   for (k = 0; k < 3; ++k) {
+	   for (k = 0; k < MAX_NUM_TRIALS; ++k) {
    		if (optype == OP_BUY)
    			close_price = MarketInfo(smSymbols[i], MODE_BID);
    		else
@@ -108,7 +110,7 @@ bool Pack::ClosePack(void)
    			break;
    		RefreshRates();
 	   }// end for trial
-      if (k == 3) {
+      if (k == MAX_NUM_TRIALS) {
          Alert(ticket, " No'lu emir kapatilamadi close price", close_price, " .... Hata kodu : ", GetLastError());
          break;
       }
