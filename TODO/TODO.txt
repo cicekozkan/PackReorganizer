@@ -7,7 +7,8 @@ Ornek olmasi icin 1. actiona bakabilirsiniz.
 1) DONE. 08/11/2015
 [OC] Pack ve PackVector siniflarinin dokumantasyonunu tamamla. 08/11/2015 
 
-2) [OC] Pack vectorun push_back uye fonksiyonu arguman olarak pack pointer almali. Vectorun push_back uye fonksiyonunun 
+2) DONE. 11/11/2015 
+[OC] Pack vectorun push_back uye fonksiyonu arguman olarak pack pointer almali. Vectorun push_back uye fonksiyonunun 
 C++ prototipi void push_back( const T& value ); MQL de referans olmadigi icin pointer almaliyiz. 08/11/2015
 
 3) [OC] Test amacli yazilan fonksiyonlari t_function() seklinde isimlendir. Daha sonra baska bir dosyaya tasi. Ilk olarak 
@@ -22,5 +23,16 @@ global degiskenlere hic ihtiyac kalmamali: 08/11/2015
 	int pack_index = 0;
 	Pack p;
 	Pack p_arr[]; 
+
+6) [OC] PackVector sinifina asagidaki uye fonskiyonlari ekle. 10/11/2015
+	- [ ] remove(int index): indexi verilen paketteki orderlari kapatacak, o paketi silecek, member variable dizileri shrink edecek, lastordertotal degiskenini update edecek
+	- [ ] reOrginize(): yeni acilan paketi vektore ekleyecek
+	- [ ] bool checkTakeProfit(int index): paket kari kosuluna gore true false dodurecek
+	- [ ] size: Vektordeki paket sayisini donduren uye fonksiyon
+
+7) [OC] Tick fonksiyonunda yapilacaklar: 10/11/2015
+	- [ ] Yeni bir emir acildiginde paket vektorunu reOrginize edecek
+	- [ ] Paket vektorundeki kar durumunu kontrol edip kosulu saglayan paketleri kapatacak
+
 
 

@@ -122,24 +122,23 @@ bool Pack::ClosePack(void)
 // ------------------------------------------- PACK VECTOR CLASS --------------------------------------------------------- //
 /*! Represents a pack vector */
 class PackVector {
-   Pack m_pack[];    ///< An array of Packs
+   Pack *m_pack[];    ///< An array of Packs
    int m_index;      ///< index
 public:
    /*! Default constructor. Initializes the vector with 0 Packs*/
    PackVector() : m_index(0) {}
-   void push_back(int ticket);
+   void PackVector::push_back(Pack *value);
    Pack *operator[](int index);
    void remove(int index);
 };
 
-/*! Mmics C++ vector<> push_back method. Places given position 
-   to the vector. **TODO**: Should place a package to the vector not
-   a position
-   \param ticket Ticket number
+/*! Mmics C++ vector<> push_back method. Places given pack 
+   to the vector. 
+   \param value Package pointer
 */
-void PackVector::push_back(const int ticket)
+void PackVector::push_back(Pack *value)
 {
-   m_pack[m_index++].Add(ticket);
+   m_pack[m_index++] = value;
 }
 
 /*! 
@@ -148,7 +147,7 @@ void PackVector::push_back(const int ticket)
 */
 Pack *PackVector::operator[](const int index)
 {
-   return &m_pack[index];
+   return m_pack[index];
 }
 
 /*!Remove selected package from the vector
@@ -165,7 +164,7 @@ Pack p_arr[];
 
 // ------------------------------------------ GLOBAL FUNCTIONS ------------------------------------------------- //
 
-/*! A global function to re-organize packages. Traveses all open orders and 
+/*! A global function to re-organize packages. Traverses all open orders and 
 places target orders whose magic number matches the desired magic number ex_magic_no
 to the first available package. Creates a new package if all packages are full or 
 none is available and places the order to that new package.
@@ -195,7 +194,7 @@ void PackReorginize(void)
 /*! Expert initialization function */   
 int OnInit()
 {
-
+   return(INIT_SUCCEEDED);
 }
 
 /*! Expert deinitialization function */                           
