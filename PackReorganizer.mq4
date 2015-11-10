@@ -28,12 +28,13 @@ public:
    Pack(){}
    bool isInsertable(const int);
    /*!\return Number of positions*/
-   int GetSize(){return counter;}
+   int size(){return counter;}
    int Add(const int);
    /*!Displays the package*/
    void Display();
    /*!Closes all the positions in the package*/
    bool ClosePack(void);
+   int GetProfit(void);   
 };
 
 /*! Checks whether given position can be inserted to the package or not
@@ -119,6 +120,19 @@ bool Pack::ClosePack(void)
    return false;
 }
 
+/*!\return Total profit pips of the package */ 
+int Pack::GetProfit(void)
+{
+   int total = 0;
+   for (int i=0; i < counter; i++){
+      if (!OrderSelect(imTicketarray[i], SELECT_BY_TICKET, MODE_TRADES)) {
+		   Alert(imTicketarray[i], " No'lu emir secilemedi... Hata kodu : ", GetLastError());
+		   return -1;
+	   }
+	   total += (int)NormalizeDouble(OrderProfit(), Digits) / Point;
+   }//end for 
+   return total;
+}
 // ------------------------------------------- PACK VECTOR CLASS --------------------------------------------------------- //
 /*! Represents a pack vector */
 class PackVector {
@@ -132,6 +146,7 @@ public:
    void remove(int index);
    /*!\return Number of packages inside the vector*/
    int size(void){return m_index;}
+   bool checkTakeProfit(int index);
 };
 
 /*! Mmics C++ vector<> push_back method. Places given pack 
@@ -160,6 +175,15 @@ void PackVector::remove(int index)
    
 }
 
+/*!\param index: Index of the package to check
+   \return True if the sum of the profits of orders in the package is equal to or greater than the target. False otherwise
+*/ 
+bool PackVector::checkTakeProfit(int index)
+{
+   //m_pack[index].
+   return false;
+}
+
 PackVector pvec;  ///< Global PackVector class object
 
 // ------------------------------------------ GLOBAL FUNCTIONS ------------------------------------------------- //
@@ -169,7 +193,7 @@ places target orders whose magic number matches the desired magic number ex_magi
 to the first available package. Creates a new package if all packages are full or 
 none is available and places the order to that new package.
 */
-void PackReorginize(void)
+void PackReorganize(void)
 {
    for (int k = OrdersTotal() - 1; k >= 0; --k) {
       if (!OrderSelect(k, SELECT_BY_POS, MODE_TRADES)) {
