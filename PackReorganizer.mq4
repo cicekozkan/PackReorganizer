@@ -211,8 +211,7 @@ void PackVector::remove(int index)
 */ 
 bool PackVector::checkTakeProfit(int index)
 {
-   //m_pack[index].
-   return false;
+   return m_pack[index].GetProfit() != m_pack[index].GetTargetProfit();
 }
 
 PackVector pvec;  ///< Global PackVector class object
