@@ -165,21 +165,6 @@ Pack p_arr[];
 
 // ------------------------------------------ GLOBAL FUNCTIONS ------------------------------------------------- //
 
-/*!A global function to get a random parity 
-   \return A random parity
-*/
-string getRandomOrder()
-{
-	static const string mp[28] = { "EURUSD", "GBPUSD", "USDJPY", "USDCHF", "AUDUSD", "USDCAD", "NZDUSD",
-		"EURGBP", "EURJPY", "EURCHF", "EURAUD", "EURCAD", "EURNZD",
-		"GBPJPY", "GBPCHF", "GBPAUD", "GBPCAD", "GBPNZD",
-		"CHFJPY", "AUDJPY", "CADJPY", "NZDJPY",
-		"AUDCHF", "CADCHF", "NZDCHF",
-		"AUDCAD", "NZDCAD",
-		"AUDNZD" };
-	return mp[MathRand() % 28];
-}
-
 /*! A global function to re-organize packages. Traveses all open orders and 
 places target orders whose magic number matches the desired magic number ex_magic_no
 to the first available package. Creates a new package if all packages are full or 
@@ -210,14 +195,7 @@ void PackReorginize(void)
 /*! Expert initialization function */   
 int OnInit()
 {
-   int ticket = -1;
-   for (int i=0; i<50; i++){
-      string sym = getRandomOrder();
-      int buy = MathRand()%2;
-      ticket = OrderSend(sym, buy, 0.1, MarketInfo(sym, buy?MODE_BID:MODE_ASK), 10, 0, 0, "1_11111", 11111);
-      if (ticket < 0) Print(sym, " Paritesinde emir acilamadi. Hata kodu = ", GetLastError());
-   }      
-   return(INIT_SUCCEEDED);
+
 }
 
 /*! Expert deinitialization function */                           

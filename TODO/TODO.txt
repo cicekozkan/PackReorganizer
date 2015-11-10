@@ -4,20 +4,23 @@ sayi altinda kendi bas harfleri ile dusunduklerini/yorumlarini yazarak daha guze
 Tamamlanan aksiyonlarin basina DONE seklinde yazalim. Daha sonradan History yazarken donup bakabiliriz.
 Ornek olmasi icin 1. actiona bakabilirsiniz.
 
-1) DONE
-[OC] Pack ve PackVector siniflarinin dokumantasyonunu tamamla
+1) DONE. 08/11/2015
+[OC] Pack ve PackVector siniflarinin dokumantasyonunu tamamla. 08/11/2015 
 
 2) [OC] Pack vectorun push_back uye fonksiyonu arguman olarak pack pointer almali. Vectorun push_back uye fonksiyonunun 
-C++ prototipi void push_back( const T& value ); MQL de referans olmadigi icin pointer almaliyiz.
+C++ prototipi void push_back( const T& value ); MQL de referans olmadigi icin pointer almaliyiz. 08/11/2015
 
 3) [OC] Test amacli yazilan fonksiyonlari t_function() seklinde isimlendir. Daha sonra baska bir dosyaya tasi. Ilk olarak 
-getRandomOrder cagrilarak yapilan 50 tane random emir acma islemini bir test fonksiyonuna tasi
+getRandomOrder cagrilarak yapilan 50 tane random emir acma islemini bir test fonksiyonuna tasi. 08/11/2015
+[OC] Random order acan ve acik butun orderlari kapatan iki tane script yazildi. 10/11/2015
 
-4) DONE 
-[OC] Butun hard-coded degerleri degiskenlere ata. Ornek olarak random acilan emir sayisi
+4) DONE 10/11/2015
+[OC] Butun hard-coded degerleri degiskenlere ata. Ornek olarak random acilan emir sayisi. 08/11/2015
 
 5) [OC] Global bir pack vector degiskeni tamamla ve PackReorginize() global fonksiyonunda bu degiskeni kullan. Asagidaki 
-global degiskenlere hic ihtiyac kalmamali:
+global degiskenlere hic ihtiyac kalmamali: 08/11/2015
 	int pack_index = 0;
 	Pack p;
-	Pack p_arr[];
+	Pack p_arr[]; 
+
+
