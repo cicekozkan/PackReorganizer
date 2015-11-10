@@ -34,7 +34,8 @@ public:
    void Display();
    /*!Closes all the positions in the package*/
    bool ClosePack(void);
-   int GetProfit(void);   
+   int GetProfit(void);  
+   int GetTargetProfit(void); 
 };
 
 /*! Checks whether given position can be inserted to the package or not
@@ -130,9 +131,39 @@ int Pack::GetProfit(void)
 		   return -1;
 	   }
 	   total += (int)NormalizeDouble(OrderProfit(), Digits) / Point;
-   }//end for 
+   }//end for - traverse orders
    return total;
 }
+
+/*!\return The target profit of the package */
+int Pack::GetTargetProfit(void)
+{
+   int tp = -1;
+   int total = 0;
+   for (int i=0; i < counter; i++){
+      if (!OrderSelect(imTicketarray[i], SELECT_BY_TICKET, MODE_TRADES)) {
+		   Alert(imTicketarray[i], " No'lu emir secilemedi... Hata kodu : ", GetLastError());
+		   return -1;
+	   }
+      tp = StringToInteger(StringSubstr(OrderComment(), 0, 1));
+      switch(tp){
+         case 1:
+            total += ex_tp1;
+            break;
+         case 2:
+            total += ex_tp2;
+            break;
+         case 3:
+            total += ex_tp3;
+            break;
+         default:
+            Alert(imTicketarray[i], " No'lu emirde gecersiz comment...");
+            return -1;      
+      }//end switch case - take profit
+   }//end for - traverse orders
+   return total;
+}
+
 // ------------------------------------------- PACK VECTOR CLASS --------------------------------------------------------- //
 /*! Represents a pack vector */
 class PackVector {

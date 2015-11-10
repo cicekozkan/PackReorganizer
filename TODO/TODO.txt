@@ -29,8 +29,8 @@ global degiskenlere hic ihtiyac kalmamali: 08/11/2015
 	- [ ] remove(int index): indexi verilen paketteki orderlari kapatacak, o paketi silecek, member variable dizileri shrink edecek, lastordertotal degiskenini update edecek
 	- [ ] reOrginize(): yeni acilan paketi vektore ekleyecek
 	- [ ] bool checkTakeProfit(int index): paket kari kosuluna gore true false dodurecek
-		- [X] Paket sinifi icin toplam kari pip olarak donduren bir uye fonksiyonu yaz 11/11/2015 
-		- [ ] Paket sinifi icin target take profiti pip olarak donduren bir uye fonksiyon yaz
+		- [X] Paket sinifi icin toplam kari pip olarak donduren bir uye fonksiyonu yaz. 11/11/2015 
+		- [X] Paket sinifi icin target take profiti pip olarak donduren bir uye fonksiyon yaz. 11/11/2015 
 	- [X] size: Vektordeki paket sayisini donduren uye fonksiyon. 11/11/2015 
 
 7) [OC] Tick fonksiyonunda yapilacaklar: 10/11/2015
