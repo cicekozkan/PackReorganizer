@@ -2,7 +2,7 @@
 */
 //+------------------------------------------------------------------+
 //|                                              PackReorganizer.mq4 |
-//|                        Copyright 2015, MetaQuotes Software Corp. |
+//|                                Copyright 2015, MQL Project Group |
 //|                                             https://www.mql5.com |
 //+------------------------------------------------------------------+
 #property copyright "Copyright 2015, MetaQuotes Software Corp."
@@ -169,15 +169,17 @@ int Pack::GetTargetProfit(void)
 class PackVector {
    Pack *m_pack[];    ///< An array of Packs
    int m_index;      ///< index
+   int m_total_orders;  ///< Number of total orders in the pack vector
 public:
    /*! Default constructor. Initializes the vector with 0 Packs*/
-   PackVector() : m_index(0) {}
+   PackVector() : m_index(0) {ArrayResize(m_pack, m_index, 1024);}
    void PackVector::push_back(Pack *value);
    Pack *operator[](int index);
-   void remove(int index);
+   bool remove(int index);
    /*!\return Number of packages inside the vector*/
    int size(void){return m_index;}
    bool checkTakeProfit(int index);
+   int GetNumTotalOrders(void);
 };
 
 /*! Mmics C++ vector<> push_back method. Places given pack 
@@ -198,12 +200,16 @@ Pack *PackVector::operator[](const int index)
    return m_pack[index];
 }
 
-/*!Remove selected package from the vector
+/*!Close all orders in indexed package, remove it from the vector, shrink package and update size
    \param index Index of the package in the vector
+   \return true if successful, false otherwise.
 */
-void PackVector::remove(int index)
+bool PackVector::remove(int index)
 {
-   
+   if(!m_pack[index].ClosePack()) return false;
+   --m_index; 
+   if (ArrayResize(m_pack, m_index, 1024) == -1) return false;
+   return true;
 }
 
 /*!\param index: Index of the package to check
@@ -214,9 +220,20 @@ bool PackVector::checkTakeProfit(int index)
    return m_pack[index].GetProfit() != m_pack[index].GetTargetProfit();
 }
 
-PackVector pvec;  ///< Global PackVector class object
+/*!\return Number of total orders in the pack vector
+*/
+int PackVector::GetNumTotalOrders(void)
+{
+   int total = 0;
+   for (int i = 0; i < m_index; i++){
+      total += m_pack[i].size();
+   }//end for - traverse packs in the pack vector
+   return total;
+}
+// ------------------------------------------ GLOBAL FUNCTIONS AND VARIABLES ------------------------------------------------- //
 
-// ------------------------------------------ GLOBAL FUNCTIONS ------------------------------------------------- //
+PackVector pvec;     ///< Global PackVector class object
+int num_orders = 0;  ///< Number of orders
 
 /*! A global function to re-organize packages. Traverses all open orders and 
 places target orders whose magic number matches the desired magic number ex_magic_no
@@ -244,6 +261,7 @@ void PackReorganize(void)
          }
       }      
    }// end order total for
+   Alert("Package reorganized");
 }
 
 // ------------------------------------------------- EXPERT FUNCTIONS ----------------------------------------------- //
@@ -251,6 +269,7 @@ void PackReorganize(void)
 /*! Expert initialization function */   
 int OnInit()
 {
+   PackReorganize();
    return(INIT_SUCCEEDED);
 }
 
@@ -263,6 +282,6 @@ void OnDeinit(const int reason)
 /*! Expert tick function */                                          
 void OnTick()
 {
-   
+   if (pvec.GetNumTotalOrders() != OrdersTotal()) PackReorganize();
 }
 
