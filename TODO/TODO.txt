@@ -36,7 +36,12 @@ global degiskenlere hic ihtiyac kalmamali: 08/11/2015
 
 7) [OC] Tick fonksiyonunda yapilacaklar: 10/11/2015
 	- [X] Yeni bir emir acildiginde paket vektorunu reOrginize edecek
-	- [ ] Paket vektorundeki kar durumunu kontrol edip kosulu saglayan paketleri kapatacak
+		+ Degisiklik yapiyoruz: Her bir tickte butun orderlar gezilir; secilen order
+		comment convention ve magic number istedigimiz gibi mi degil mi kontrol edilir.
+		Istedigimiz gibi degilse sonraki ordera gecilir. Istedigimiz gibiyse paketlerde
+		var mi diye bakilir (hasOrder). Varsa bir sonraki ordera gecer; hicbir 
+		pakette yoksa ilk uygun pakete eklenir. 14/11/2015
+	- [ ] Paket vektorundeki kar durumunu kontrol edip kosulu saglayan paketleri kapatacak. 10/11/2015
 
 8) [SD] IsValidParity fonksiyonu yazilsin. Gelen parity valid parite dizisindeki paritelerdern
 biri mi degil mi onu kontrol etsin. Bu fonksiyon isInsertible fonksiyonundan once cagrilmali 14/11/2015
@@ -45,3 +50,33 @@ biri mi degil mi onu kontrol etsin. Bu fonksiyon isInsertible fonksiyonundan onc
 once cagrilmali 14/11/2015
 
 10) [OC] Magic number kontrolu de isinsertible fonksiyon cagrisindan once yapilmali 14/11/2015
+
+11) Pack classindak diziler fixed size olsun. 
+
+12) PackVector::push_back uye fonksiyonu member variable dizinin boyutunu kontrol edecek.
+Yeterli alan yoksa ArrayResize ile reallocation yapacak.
+
+13) Pack classina hasContain(ticket num) [function name hasOrder olsun] member function eklenecek
+
+14) Pack::ClosePack ismini Pack::Close yap. Fonksiyon true donmuyor. Butun islemleri basarili 
+ise true don. Herhangi bir emir kapatilamazsa false don. 
+
+15) Pack classta totalprofit ve target profit member variablelar olsun.
+
+16) Pack vectordeki her degisikligi logla. 
+
+
+TarihZaman\tIndex\tSymbol\tOpenPrice\tOrderComment\tMagicNumber\tTicketNumber\tTotalProfit\tTargetProfit\n
+0	USDCAD	
+0	GBPNZD
+1	X
+1	Y
+1	Z
+TarihZaman\tIndex\tSymbol\tOpenPrice\tOrderComment\tMagicNumber\tTicketNumber\tTotalProfit\tTargetProfit\n
+0	USDCAD	
+0	GBPNZD
+1	X
+1	Y
+1	Z
+1	T
+

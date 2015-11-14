@@ -285,3 +285,34 @@ void OnTick()
    if (pvec.GetNumTotalOrders() != OrdersTotal()) PackReorganize();
 }
 
+
+
+
+///////////////////////////////
+/*
++ Degisiklik yapiyoruz: Her bir tickte butun orderlar gezilir; secilen order
+		comment convention ve magic number istedigimiz gibi mi degil mi kontrol edilir.
+		Istedigimiz gibi degilse sonraki ordera gecilir. Istedigimiz gibiyse paketlerde
+		var mi diye bakilir (hasOrder). Varsa bir sonraki ordera gecer; hicbir 
+		pakette yoksa ilk uygun pakete eklenir. 14/11/2015
+*/
+
+
+for OrrderTotal() {
+    !is valid comment
+        continue;
+    !is valid magic
+        continue;
+    pack.hasContain
+        continue;
+    for (PACK.Size()
+        is insertable
+            pack.add
+            flag = true;
+}
+
+if (flag == true)
+    log
+    flag = false;
+
+
