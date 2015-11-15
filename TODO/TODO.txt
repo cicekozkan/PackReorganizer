@@ -46,7 +46,8 @@ global degiskenlere hic ihtiyac kalmamali: 08/11/2015
 8) [SD] IsValidParity fonksiyonu yazilsin. Gelen parity valid parite dizisindeki paritelerdern
 biri mi degil mi onu kontrol etsin. Bu fonksiyon isInsertible fonksiyonundan once cagrilmali 14/11/2015
 
-9) [VA] Comment konvensiyonu kontrol edilmeli. Bu fonksiyon isInsertible fonksiyonundan 
+9) DONE 15/11/2015
+[VA] Comment konvensiyonu kontrol edilmeli. Bu fonksiyon isInsertible fonksiyonundan 
 once cagrilmali 14/11/2015
 
 10) [OC] Magic number kontrolu de isinsertible fonksiyon cagrisindan once yapilmali 14/11/2015

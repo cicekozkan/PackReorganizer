@@ -235,6 +235,31 @@ int PackVector::GetNumTotalOrders(void)
 PackVector pvec;     ///< Global PackVector class object
 int num_orders = 0;  ///< Number of orders
 
+/*!Check the comment format. **TODO**: This function can be implemented with regular expressions but MQL does not support
+   regular expressions. In C++ regex can be used. Here is the python implementation
+   
+   import re
+   def comment_match(comment):
+       pattern = '[1-3]_[0-9]{5}'
+       m = re.match(pattern,comment)
+       if m == None:
+           return False
+       else:
+           return m.group(0) == comment
+
+   \param comment Order comment
+   \return Return true if comment starts with 1, 2, 3 followed by _ and then followed by a 5 digit number. False otherwise
+*/
+bool CommentMatch(const string comment)
+{
+   if (StringSubstr(comment, 1, 1) != '_')  return false;
+   int first_num = StringSubstr(comment, 0, 1);
+   if (first_num != 1 && first_num != 2 && first_num != 3)  return false;
+   int magic_num = StringToInteger(StringSubstr(comment, 2));
+   if ( magic_num < 0 || magic_num > 99999) return false;
+   return true;
+}
+
 /*! A global function to re-organize packages. Traverses all open orders and 
 places target orders whose magic number matches the desired magic number ex_magic_no
 to the first available package. Creates a new package if all packages are full or 
@@ -295,7 +320,7 @@ void OnTick()
 		Istedigimiz gibi degilse sonraki ordera gecilir. Istedigimiz gibiyse paketlerde
 		var mi diye bakilir (hasOrder). Varsa bir sonraki ordera gecer; hicbir 
 		pakette yoksa ilk uygun pakete eklenir. 14/11/2015
-*/
+
 
 
 for OrrderTotal() {
@@ -315,4 +340,4 @@ if (flag == true)
     log
     flag = false;
 
-
+*/
