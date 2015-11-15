@@ -52,15 +52,18 @@ once cagrilmali 14/11/2015
 
 10) [OC] Magic number kontrolu de isinsertible fonksiyon cagrisindan once yapilmali 14/11/2015
 
-11) Pack classindak diziler fixed size olsun. 
+11) DONE 15/11/2015
+Pack classindak diziler fixed size olsun. 
 
 12) PackVector::push_back uye fonksiyonu member variable dizinin boyutunu kontrol edecek.
 Yeterli alan yoksa ArrayResize ile reallocation yapacak.
 
 13) Pack classina hasContain(ticket num) [function name hasOrder olsun] member function eklenecek
 
-14) Pack::ClosePack ismini Pack::Close yap. Fonksiyon true donmuyor. Butun islemleri basarili 
+14) DONE 15/11/2015 
+Pack::ClosePack ismini Pack::Close yap. Fonksiyon true donmuyor. Butun islemleri basarili 
 ise true don. Herhangi bir emir kapatilamazsa false don. 
+[OC] Close MQLde kullanilan bir array oldugu icin fonksiyonun ismi Close olamaz. 15/11/2015
 
 15) Pack classta totalprofit ve target profit member variablelar olsun.
 

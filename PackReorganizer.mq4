@@ -20,8 +20,8 @@ extern int ex_tp3 = 30;          ///< Take profit pips 3
 
 /*! Pack class; represents a package */
 class Pack{
-   int imTicketarray [] ;  ///< An array to hold ticket number of orders of the package
-   string smSymbols [] ;   ///< An array to hold symbols of orders of the package
+   int imTicketarray [MAX_ORDERS_IN_A_PACK] ;  ///< An array to hold ticket number of orders of the package
+   string smSymbols [MAX_ORDERS_IN_A_PACK] ;   ///< An array to hold symbols of orders of the package
    int counter ;           ///< Number of orders in the package
 public:
    /*!Default constructor*/
@@ -113,12 +113,12 @@ bool Pack::ClosePack(void)
    		RefreshRates();
 	   }// end for trial
       if (k == MAX_NUM_TRIALS) {
-         Alert(ticket, " No'lu emir kapatilamadi close price", close_price, " .... Hata kodu : ", GetLastError());
-         break;
+         Alert(ticket, " No'lu emir kapatilamadi. Close price: ", close_price, ".... Hata kodu : ", GetLastError());
+         return false;
       }
    }// end for counter
    
-   return false;
+   return true;
 }
 
 /*!\return Total profit pips of the package */ 
