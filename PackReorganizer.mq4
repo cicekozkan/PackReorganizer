@@ -13,6 +13,7 @@
 #define  MAX_ORDERS_IN_A_PACK 4
 #define  MAX_NUM_TRIALS 3
 #define  INITIAL_PACK_VEC_SIZE 128
+#define  NUM_VALID_PARITIES 28
 
 extern int ex_magic_no = 12345;  ///< Magic number of target orders
 extern int ex_tp1 = 10;          ///< Take profit pips 1
@@ -257,6 +258,26 @@ int PackVector::GetNumTotalOrders(void)
 PackVector pvec;     ///< Global PackVector class object
 int num_orders = 0;  ///< Number of orders
 
+/// All possible parities
+const string valid_parities[NUM_VALID_PARITIES] = {
+            "AUDCAD","AUDCHF","AUDJPY","AUDNZD","AUDUSD",
+            "CADCHF","CADJPY","CHFJPY","EURAUD","EURCAD",
+            "EURCHF","EURGBP","EURJPY","EURNZD","EURUSD",
+            "GBPAUD","GBPCAD","GBPCHF","GBPJPY","GBPNZD",
+            "GBPUSD","NZDCAD","NZDCHF","NZDJPY","NZDUSD",
+            "USDCAD","USDCHF","USDJPY" }; 
+            
+/*! ArrayBsearch function not used because it returns 
+    index of a found element. If the wanted value isn't found, the function returns the index of an element nearest in value.
+   \param parity Parity of the order to check
+   \return True if the parity is valid; false otherwise*/
+bool IsValidParity(const string parity)
+{
+   for(int i = 0; i < NUM_VALID_PARITIES; i++)
+      if(valid_parities[i] == parity)  return true;
+   return false;
+}
+
 /*!Check the comment format. **TODO**: This function can be implemented with regular expressions but MQL does not support
    regular expressions. In C++ regex can be used. Here is the python implementation
    
@@ -272,7 +293,7 @@ int num_orders = 0;  ///< Number of orders
    \param comment Order comment
    \return Return true if comment starts with 1, 2, 3 followed by _ and then followed by a 5 digit number. False otherwise
 */
-bool ProperComment(const string comment)
+bool IsValidComment(const string comment)
 {
    if (StringSubstr(comment, 1, 1) != '_')  return false;
    int first_num = StringSubstr(comment, 0, 1);
@@ -285,7 +306,7 @@ bool ProperComment(const string comment)
 /*! Check magic number format. For now it only checks if the magic number is within the range [0, 1000000) or not
    \return True if magic number is in range [0, 1000000); false otherwise
 */
-bool ProperMagic(const int magic)
+bool IsValidMagic(const int magic)
 {
    return !(magic < 0 || magic > 99999);
 }
