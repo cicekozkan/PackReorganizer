@@ -85,3 +85,5 @@ TarihZaman\tIndex\tSymbol\tOpenPrice\tOrderComment\tMagicNumber\tTicketNumber\tT
 1	Z
 1	T
 
+17) [OC] Class variable isimlerinde hocanin belirledigi syntaxa uyabiliriz. Simdilik karisik isimlendirmeler. Herkese OK ise variable isimleri hocanin dersteki
+orneklerindeki gibi yapabiliriz. Veya herkesin OK diyecegi bir style guide. 16/11/2015
