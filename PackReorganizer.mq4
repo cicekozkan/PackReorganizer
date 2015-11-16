@@ -256,7 +256,7 @@ int num_orders = 0;  ///< Number of orders
    
    import re
    def comment_match(comment):
-       pattern = '[1-3]_[0-9]{5}'
+       pattern = '[1-3]+_[0-9]{5}'
        m = re.match(pattern,comment)
        if m == None:
            return False
@@ -266,7 +266,7 @@ int num_orders = 0;  ///< Number of orders
    \param comment Order comment
    \return Return true if comment starts with 1, 2, 3 followed by _ and then followed by a 5 digit number. False otherwise
 */
-bool CommentMatch(const string comment)
+bool ProperComment(const string comment)
 {
    if (StringSubstr(comment, 1, 1) != '_')  return false;
    int first_num = StringSubstr(comment, 0, 1);
@@ -276,6 +276,13 @@ bool CommentMatch(const string comment)
    return true;
 }
 
+/*! Check magic number format. For now it only checks if the magic number is within the range [0, 1000000) or not
+   \return True if magic number is in range [0, 1000000); false otherwise
+*/
+bool ProperMagic(const int magic)
+{
+   return !(magic < 0 || magic > 99999);
+}
 /*! A global function to re-organize packages. Traverses all open orders and 
 places target orders whose magic number matches the desired magic number ex_magic_no
 to the first available package. Creates a new package if all packages are full or 

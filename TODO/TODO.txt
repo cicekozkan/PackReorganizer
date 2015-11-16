@@ -50,7 +50,8 @@ biri mi degil mi onu kontrol etsin. Bu fonksiyon isInsertible fonksiyonundan onc
 [VA] Comment konvensiyonu kontrol edilmeli. Bu fonksiyon isInsertible fonksiyonundan 
 once cagrilmali 14/11/2015
 
-10) [OC] Magic number kontrolu de isinsertible fonksiyon cagrisindan once yapilmali 14/11/2015
+10) DONE 16/11/2015 
+[OC] Magic number kontrolu de isinsertible fonksiyon cagrisindan once yapilmali 14/11/2015
 
 11) DONE 15/11/2015
 Pack classindak diziler fixed size olsun. 
