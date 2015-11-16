@@ -12,6 +12,7 @@
 
 #define  MAX_ORDERS_IN_A_PACK 4
 #define  MAX_NUM_TRIALS 3
+#define  INITIAL_PACK_VEC_SIZE 128
 
 extern int ex_magic_no = 12345;  ///< Magic number of target orders
 extern int ex_tp1 = 10;          ///< Take profit pips 1
@@ -189,7 +190,7 @@ class PackVector {
 public:
    /*! Default constructor. Initializes the vector with 0 Packs*/
    PackVector() : m_index(0) {ArrayResize(m_pack, m_index, 1024);}
-   void PackVector::push_back(Pack *value);
+   bool PackVector::push_back(Pack *value);
    Pack *operator[](int index);
    bool remove(int index);
    /*!\return Number of packages inside the vector*/
@@ -201,10 +202,15 @@ public:
 /*! Mmics C++ vector<> push_back method. Places given pack 
    to the vector. 
    \param value Package pointer
+   \return True if success; false if memory allocation and array resize fails
 */
-void PackVector::push_back(Pack *value)
+bool PackVector::push_back(Pack *value)
 {
-   m_pack[m_index++] = value;
+   static int capacity = INITIAL_PACK_VEC_SIZE;
+   if (m_index + 1 == capacity) capacity *= 2;
+   if (ArrayResize(m_pack, m_index + 1, capacity) == -1 ) return false; 
+   else m_pack[m_index++] = value;
+   return true;
 }
 
 /*! 

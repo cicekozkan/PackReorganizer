@@ -56,7 +56,8 @@ once cagrilmali 14/11/2015
 11) DONE 15/11/2015
 Pack classindak diziler fixed size olsun. 
 
-12) PackVector::push_back uye fonksiyonu member variable dizinin boyutunu kontrol edecek.
+12) DONE 16/11/2015
+PackVector::push_back uye fonksiyonu member variable dizinin boyutunu kontrol edecek.
 Yeterli alan yoksa ArrayResize ile reallocation yapacak.
 
 13) DONE 16/11/2015
