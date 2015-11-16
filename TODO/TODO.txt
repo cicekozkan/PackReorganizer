@@ -58,7 +58,8 @@ Pack classindak diziler fixed size olsun.
 12) PackVector::push_back uye fonksiyonu member variable dizinin boyutunu kontrol edecek.
 Yeterli alan yoksa ArrayResize ile reallocation yapacak.
 
-13) Pack classina hasContain(ticket num) [function name hasOrder olsun] member function eklenecek
+13) DONE 16/11/2015
+Pack classina hasContain(ticket num) [function name hasOrder olsun] member function eklenecek
 
 14) DONE 15/11/2015 
 Pack::ClosePack ismini Pack::Close yap. Fonksiyon true donmuyor. Butun islemleri basarili 

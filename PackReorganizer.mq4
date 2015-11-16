@@ -36,6 +36,7 @@ public:
    bool ClosePack(void);
    int GetProfit(void);  
    int GetTargetProfit(void); 
+   bool hasOrder(int);
 };
 
 /*! Checks whether given position can be inserted to the package or not
@@ -164,6 +165,15 @@ int Pack::GetTargetProfit(void)
    return total;
 }
 
+/*!\param ticket: Ticket number of the order
+   \return True if the order with given ticket number is in the pack; false otherwise
+*/
+bool Pack::hasOrder(int ticket)
+{
+   for (int i = 0; i < counter; i++)
+      if (imTicketarray[i] == ticket)  return true;
+   return false;
+}
 // ------------------------------------------- PACK VECTOR CLASS --------------------------------------------------------- //
 /*! Represents a pack vector */
 class PackVector {
