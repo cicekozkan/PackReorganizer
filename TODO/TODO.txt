@@ -66,7 +66,8 @@ Pack::ClosePack ismini Pack::Close yap. Fonksiyon true donmuyor. Butun islemleri
 ise true don. Herhangi bir emir kapatilamazsa false don. 
 [OC] Close MQLde kullanilan bir array oldugu icin fonksiyonun ismi Close olamaz. 15/11/2015
 
-15) Pack classta totalprofit ve target profit member variablelar olsun.
+15) DONE. Add and close member functions update these variables. 16/11/2015 
+Pack classta totalprofit ve target profit member variablelar olsun.
 
 16) Pack vectordeki her degisikligi logla. 
 

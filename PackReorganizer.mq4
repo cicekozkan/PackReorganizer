@@ -23,16 +23,16 @@ class Pack{
    int imTicketarray [MAX_ORDERS_IN_A_PACK] ;  ///< An array to hold ticket number of orders of the package
    string smSymbols [MAX_ORDERS_IN_A_PACK] ;   ///< An array to hold symbols of orders of the package
    int counter ;           ///< Number of orders in the package
+   int m_total_profit_pip; ///< Total profit of the pack in pips
+   int m_target_profit_pip; ///< Target profit of the pack in pips
 public:
    /*!Default constructor*/
-   Pack(){}
+   Pack(): counter(0), m_total_profit_pip(0), m_target_profit_pip(0){}
    bool isInsertable(const int);
    /*!\return Number of positions*/
    int size(){return counter;}
    int Add(const int);
-   /*!Displays the package*/
-   void Display();
-   /*!Closes all the positions in the package*/
+   void Display(void);
    bool ClosePack(void);
    int GetProfit(void);  
    int GetTargetProfit(void); 
@@ -73,25 +73,29 @@ bool Pack::isInsertable(const int cTicket){
 */
 int Pack::Add(const int cTicket){
 
-   imTicketarray[counter] = cTicket;
-   int lastArraySize = ArraySize(imTicketarray);
-      
    if(!(OrderSelect(cTicket, SELECT_BY_TICKET)==true)){
       Print("Order Secilemedi , Hata Kodu :  ",GetLastError());
       return -1;
    }
-   
+   imTicketarray[counter] = cTicket;
+   int lastArraySize = ArraySize(imTicketarray);   
    smSymbols[counter] = OrderSymbol();
    counter++;
+   m_total_profit_pip = GetProfit();
+   m_target_profit_pip = GetTargetProfit();
    return lastArraySize;
 }
 
+/*!Display the package*/
 void Pack::Display(void){
 
    for(int i =0 ; i < ArraySize(smSymbols);++i )
    Print(smSymbols[i]);
 }
 
+/*!Close all the positions in the package
+   \return True if success; false otherwise
+*/
 bool Pack::ClosePack(void)
 {
    for(int i = 0; i < counter; i++){
@@ -118,7 +122,9 @@ bool Pack::ClosePack(void)
          return false;
       }
    }// end for counter
-   
+      
+   m_target_profit_pip = 0; // update these variables (doubt we will need a closed pack's variables; just do it to be safe)
+   m_total_profit_pip = 0;
    return true;
 }
 
