@@ -39,6 +39,8 @@ public:
    int GetProfit(void);  
    int GetTargetProfit(void); 
    bool hasOrder(int);
+   /*!\return Indexed pack's ticket number*/
+   int GetTicket(int index){return imTicketarray[index];}
 };
 
 /*! Checks whether given position can be inserted to the package or not
@@ -144,7 +146,7 @@ int Pack::GetProfit(void)
    return total;
 }
 
-/*!\return The target profit of the package */
+/*!\return The target profit pips of the package */
 int Pack::GetTargetProfit(void)
 {
    int tp = -1;
@@ -154,21 +156,7 @@ int Pack::GetTargetProfit(void)
 		   Alert(imTicketarray[i], " No'lu emir secilemedi... Hata kodu : ", GetLastError());
 		   return -1;
 	   }
-      tp = StringToInteger(StringSubstr(OrderComment(), 0, 1));
-      switch(tp){
-         case 1:
-            total += ex_tp1;
-            break;
-         case 2:
-            total += ex_tp2;
-            break;
-         case 3:
-            total += ex_tp3;
-            break;
-         default:
-            Alert(imTicketarray[i], " No'lu emirde gecersiz comment...");
-            return -1;      
-      }//end switch case - take profit
+      total += GetOrderTarget();
    }//end for - traverse orders
    return total;
 }
@@ -258,6 +246,29 @@ int PackVector::GetNumTotalOrders(void)
 PackVector pvec;     ///< Global PackVector class object
 int num_orders = 0;  ///< Number of orders
 
+/*!\return The target profit pips of the order. The order must be selected with OrderSelect() function before calling this function*/
+int GetOrderTarget(void)
+{
+   int target = 0;
+   int tp;
+   tp = StringToInteger(StringSubstr(OrderComment(), 0, 1));
+   switch(tp){
+      case 1:
+         target = ex_tp1;
+         break;
+      case 2:
+         target = ex_tp2;
+         break;
+      case 3:
+         target = ex_tp3;
+         break;
+      default:
+         Alert("Gecersiz comment...");
+         target = -1;      
+   }//end switch case - take profit
+   return target;
+}
+
 /// All possible parities
 const string valid_parities[NUM_VALID_PARITIES] = {
             "AUDCAD","AUDCHF","AUDJPY","AUDNZD","AUDUSD",
@@ -310,6 +321,7 @@ bool IsValidMagic(const int magic)
 {
    return !(magic < 0 || magic > 99999);
 }
+
 /*! A global function to re-organize packages. Traverses all open orders and 
 places target orders whose magic number matches the desired magic number ex_magic_no
 to the first available package. Creates a new package if all packages are full or 
@@ -339,12 +351,53 @@ void PackReorganize(void)
    Alert("Package reorganized");
 }
 
+/// Log file name
+string log_file_name = "PackReorganizeLog.txt";
+/// Log file handle
+int lfh = INVALID_HANDLE;
+
+/*! Log packs to a tab delimetd text file */
+void Log(void)
+{
+   MqlDateTime str; 
+   TimeToStruct(TimeCurrent(), str);
+   string date = IntegerToString(str.year) + "/" + IntegerToString(str.mon) + "/" + IntegerToString(str.day);
+   string time = IntegerToString(str.hour) + ":" + IntegerToString(str.min) + ":" + IntegerToString(str.sec);
+   
+   for (int i = 0; i < pvec.size(); i++){
+      for (int j = 0; j < pvec[i].size(); j++){ 
+         OrderSelect(pvec[i].GetTicket(j), SELECT_BY_TICKET);
+         FileWrite(lfh, date +  
+                        time +  
+                        OrderSymbol() + 
+                        DoubleToStr(OrderOpenPrice()) + 
+                        OrderComment() + 
+                        IntegerToString(OrderMagicNumber()) + 
+                        IntegerToString(OrderTicket()) + 
+                        IntegerToString((int)NormalizeDouble(OrderProfit(), Digits) / Point) +  
+                        IntegerToString(GetOrderTarget()) + 
+                        IntegerToString(pvec[i].GetProfit()) + 
+                        IntegerToString(pvec[i].GetTargetProfit()));                        
+      }//end for - traverse orders in the pack
+   }//end for - traverse pack vector
+   
+}
+
 // ------------------------------------------------- EXPERT FUNCTIONS ----------------------------------------------- //
 
 /*! Expert initialization function */   
 int OnInit()
 {
+   lfh = FileOpen(log_file_name, FILE_WRITE | FILE_TXT, '\t'); 
+   if (lfh == INVALID_HANDLE){
+      Alert(log_file_name, " cannot be opened. The error code = ", GetLastError());
+      ExpertRemove();
+   }
+   FileWrite(lfh, "Date" + "Time" + "OrderSymbol" + "OrderOpenPrice" + "OrderComment" + "OrderMagicNumber" + 
+                  "OrderTicketNumber" + "OrderProfitPips" + "OrderTargetProfitPips" + 
+                  "PackProfitPips" + "PackTargetProfitPips");
    PackReorganize();
+   Log();
    return(INIT_SUCCEEDED);
 }
 
