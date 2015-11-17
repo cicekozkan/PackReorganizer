@@ -314,12 +314,13 @@ bool IsValidComment(const string comment)
    return true;
 }
 
-/*! Check magic number format. For now it only checks if the magic number is within the range [0, 1000000) or not
-   \return True if magic number is in range [0, 1000000); false otherwise
+/*! Check magic number format. The order must be selected before calling this function 
+   \return True if magic number in the comment matches the order magic number; false otherwise
 */
-bool IsValidMagic(const int magic)
+bool IsValidMagic(const string comment)
 {
-   return !(magic < 0 || magic > 99999);
+   int magic_comment = StringToInteger(StringSubstr(comment, 2));    
+   return magic_comment == OrderMagicNumber();
 }
 
 /*! A global function to re-organize packages. Traverses all open orders and 
@@ -329,25 +330,34 @@ none is available and places the order to that new package.
 */
 void PackReorganize(void)
 {
+
    for (int k = OrdersTotal() - 1; k >= 0; --k) {
       if (!OrderSelect(k, SELECT_BY_POS, MODE_TRADES)) {
       	Alert("Emir secilemedi... Hata kodu : ", GetLastError());
       	continue;
       }
-      if(OrderMagicNumber() == ex_magic_no && StringToInteger(StringSubstr(OrderComment(), 2)) == ex_magic_no){
-         int i;
-         for(i = 0; i < pvec.size(); i++){
-            if (pvec[i].isInsertable(OrderTicket())){ 
-               pvec[i].Add(OrderTicket());
-               break;
-            }
-         }//end pack array traverse for
-         if (i==pvec.size()) {
-            pvec.push_back(new Pack);
+      
+      if (!IsValidComment(OrderComment())) continue;
+      if (!IsValidMagic(OrderComment())) continue;
+      
+      int i;
+      for(i = 0; i < pvec.size(); i++){
+         if (pvec[i].isInsertable(OrderTicket())){ 
+            if(pvec[i].hasOrder(OrderTicket())) break; // order is already in a pack
             pvec[i].Add(OrderTicket());
+            break;
          }
-      }      
-   }// end order total for
+      }//end for - traverse orders in the pack   
+      if (i==pvec.size()) {
+         pvec.push_back(new Pack);
+         pvec[i].Add(OrderTicket());
+      }
+   }// end for - traverse all orders 
+   
+   // Now we packed all orders. Let's check their profits 
+   for(int i = 0; i < pvec.size(); i++){
+      if (pvec[i].GetProfit() == pvec[i].GetTargetProfit()) pvec[i].ClosePack();
+   }//end for - traverse packs in the pack vector
    Alert("Package reorganized");
 }
 
