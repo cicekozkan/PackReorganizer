@@ -306,8 +306,8 @@ bool IsValidParity(const string parity)
 */
 bool IsValidComment(const string comment)
 {
-   if (StringSubstr(comment, 1, 1) != '_')  return false;
-   int first_num = StringSubstr(comment, 0, 1);
+   if (StringSubstr(comment, 1, 1) != "_")  return false;
+   int first_num = StringToInteger(StringSubstr(comment, 0, 1));
    if (first_num != 1 && first_num != 2 && first_num != 3)  return false;
    int magic_num = StringToInteger(StringSubstr(comment, 2));
    if ( magic_num < 0 || magic_num > 99999) return false;
@@ -330,15 +330,15 @@ none is available and places the order to that new package.
 */
 void PackReorganize(void)
 {
-
+   
    for (int k = OrdersTotal() - 1; k >= 0; --k) {
       if (!OrderSelect(k, SELECT_BY_POS, MODE_TRADES)) {
       	Alert("Emir secilemedi... Hata kodu : ", GetLastError());
       	continue;
       }
       
-      if (!IsValidComment(OrderComment())) continue;
-      if (!IsValidMagic(OrderComment())) continue;
+      if (!IsValidComment(OrderComment())) {Alert("Not valid comment");continue;}
+      if (!IsValidMagic(OrderComment())) {Alert("Not valid magic number");continue;}
       
       int i;
       for(i = 0; i < pvec.size(); i++){
@@ -362,11 +362,11 @@ void PackReorganize(void)
 }
 
 /// Log file name
-string log_file_name = "PackReorganizeLog.txt";
+string log_file_name = "PackReorganizeLog.csv";
 /// Log file handle
 int lfh = INVALID_HANDLE;
 
-/*! Log packs to a tab delimetd text file */
+/*! Log packs to a tab delimetd csv file */
 void Log(void)
 {
    MqlDateTime str; 
@@ -377,16 +377,17 @@ void Log(void)
    for (int i = 0; i < pvec.size(); i++){
       for (int j = 0; j < pvec[i].size(); j++){ 
          OrderSelect(pvec[i].GetTicket(j), SELECT_BY_TICKET);
-         FileWrite(lfh, date +  
-                        time +  
-                        OrderSymbol() + 
-                        DoubleToStr(OrderOpenPrice()) + 
-                        OrderComment() + 
-                        IntegerToString(OrderMagicNumber()) + 
-                        IntegerToString(OrderTicket()) + 
-                        IntegerToString((int)NormalizeDouble(OrderProfit(), Digits) / Point) +  
-                        IntegerToString(GetOrderTarget()) + 
-                        IntegerToString(pvec[i].GetProfit()) + 
+         FileWrite(lfh, date,  
+                        time,  
+                        IntegerToString(i),
+                        OrderSymbol(), 
+                        DoubleToStr(OrderOpenPrice()), 
+                        OrderComment(), 
+                        IntegerToString(OrderMagicNumber()), 
+                        IntegerToString(OrderTicket()), 
+                        IntegerToString((int)NormalizeDouble(OrderProfit(), Digits) / Point),  
+                        IntegerToString(GetOrderTarget()), 
+                        IntegerToString(pvec[i].GetProfit()), 
                         IntegerToString(pvec[i].GetTargetProfit()));                        
       }//end for - traverse orders in the pack
    }//end for - traverse pack vector
@@ -398,14 +399,14 @@ void Log(void)
 /*! Expert initialization function */   
 int OnInit()
 {
-   lfh = FileOpen(log_file_name, FILE_WRITE | FILE_TXT, '\t'); 
+   lfh = FileOpen(log_file_name, FILE_WRITE | FILE_CSV); 
    if (lfh == INVALID_HANDLE){
       Alert(log_file_name, " cannot be opened. The error code = ", GetLastError());
       ExpertRemove();
    }
-   FileWrite(lfh, "Date" + "Time" + "OrderSymbol" + "OrderOpenPrice" + "OrderComment" + "OrderMagicNumber" + 
-                  "OrderTicketNumber" + "OrderProfitPips" + "OrderTargetProfitPips" + 
-                  "PackProfitPips" + "PackTargetProfitPips");
+   FileWrite(lfh, "Date", "Time", "PackIndex", "OrderSymbol", "OrderOpenPrice", "OrderComment", "OrderMagicNumber", 
+                  "OrderTicketNumber", "OrderProfitPips", "OrderTargetProfitPips", 
+                  "PackProfitPips", "PackTargetProfitPips");
    PackReorganize();
    Log();
    return(INIT_SUCCEEDED);
@@ -414,13 +415,13 @@ int OnInit()
 /*! Expert deinitialization function */                           
 void OnDeinit(const int reason)
 {
-        
+   FileClose(lfh);
 }
 
 /*! Expert tick function */                                          
 void OnTick()
 {
-   if (pvec.GetNumTotalOrders() != OrdersTotal()) PackReorganize();
+   //if (pvec.GetNumTotalOrders() != OrdersTotal()) PackReorganize();
 }
 
 
