@@ -22,14 +22,14 @@ extern int ex_tp3 = 30;          ///< Take profit pips 3
 
 /*! Pack class; represents a package */
 class Pack{
-   int imTicketarray [MAX_ORDERS_IN_A_PACK] ;  ///< An array to hold ticket number of orders of the package
-   string smSymbols [MAX_ORDERS_IN_A_PACK] ;   ///< An array to hold symbols of orders of the package
+   int imTicketarray [] ;  ///< An array to hold ticket number of orders of the package
+   string smSymbols [] ;   ///< An array to hold symbols of orders of the package
    int counter ;           ///< Number of orders in the package
    int m_total_profit_pip; ///< Total profit of the pack in pips
    int m_target_profit_pip; ///< Target profit of the pack in pips
 public:
    /*!Default constructor*/
-   Pack(): counter(0), m_total_profit_pip(0), m_target_profit_pip(0){}
+   Pack(): counter(0), m_total_profit_pip(0), m_target_profit_pip(0){ArrayResize(imTicketarray,0,MAX_ORDERS_IN_A_PACK);ArrayResize(smSymbols,0,MAX_ORDERS_IN_A_PACK);}
    bool isInsertable(const int);
    /*!\return Number of positions*/
    int size(){return counter;}
@@ -81,13 +81,15 @@ int Pack::Add(const int cTicket){
       Print("Order Secilemedi , Hata Kodu :  ",GetLastError());
       return -1;
    }
-   imTicketarray[counter] = cTicket;
-   int lastArraySize = ArraySize(imTicketarray);   
+   int lastArraySize = ArraySize(imTicketarray);
+   ArrayResize(imTicketarray, lastArraySize + 1);
+   ArrayResize(smSymbols, lastArraySize + 1);   // they should always have same size!
+   imTicketarray[counter] = cTicket;      
    smSymbols[counter] = OrderSymbol();
    counter++;
    m_total_profit_pip = GetProfit();
    m_target_profit_pip = GetTargetProfit();
-   return lastArraySize;
+   return lastArraySize + 1;
 }
 
 /*!Display the package*/
@@ -353,7 +355,7 @@ void PackReorganize(void)
          pvec[i].Add(OrderTicket());
       }
    }// end for - traverse all orders 
-   
+   Alert("Vector size", pvec.size());
    // Now we packed all orders. Let's check their profits 
    for(int i = 0; i < pvec.size(); i++){
       if (pvec[i].GetProfit() == pvec[i].GetTargetProfit()) pvec[i].ClosePack();
