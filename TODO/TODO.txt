@@ -100,5 +100,5 @@ orneklerindeki gibi yapabiliriz. Veya herkesin OK diyecegi bir style guide. 16/1
 19) [OC] Debug :) 18/11/2015
 [OC]: Log function fixed. 18/11/2015
 [OC]: GetProfit method fixed. 18/11/2015
-
+[OC]: checkTakeProfit method fixed. 18/11/2015
 

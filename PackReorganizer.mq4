@@ -230,7 +230,7 @@ bool PackVector::remove(int index)
 */ 
 bool PackVector::checkTakeProfit(int index)
 {
-   return m_pack[index].GetProfit() != m_pack[index].GetTargetProfit();
+   return m_pack[index].GetProfit() >= m_pack[index].GetTargetProfit();
 }
 
 /*!\return Number of total orders in the pack vector
