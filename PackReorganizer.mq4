@@ -36,7 +36,7 @@ public:
    int Add(const int);
    void Display(void);
    bool ClosePack(void);
-   int GetProfit(void);  
+   double GetProfit(void);  
    int GetTargetProfit(void); 
    bool hasOrder(int);
    /*!\return Indexed order's ticket number*/
@@ -135,15 +135,15 @@ bool Pack::ClosePack(void)
 }
 
 /*!\return Total profit pips of the package */ 
-int Pack::GetProfit(void)
+double Pack::GetProfit(void)
 {
-   int total = 0;
+   double total = 0.;
    for (int i=0; i < counter; i++){
       if (!OrderSelect(imTicketarray[i], SELECT_BY_TICKET, MODE_TRADES)) {
 		   Alert(imTicketarray[i], " No'lu emir secilemedi... Hata kodu : ", GetLastError());
 		   return -1;
 	   }
-	   total += (int)NormalizeDouble(OrderProfit(), Digits) / Point;
+	   total += NormalizeDouble(OrderProfit(), Digits);
    }//end for - traverse orders
    return total;
 }
@@ -374,6 +374,7 @@ void Log(void)
    string date = IntegerToString(str.year) + "/" + IntegerToString(str.mon) + "/" + IntegerToString(str.day);
    string time = IntegerToString(str.hour) + ":" + IntegerToString(str.min) + ":" + IntegerToString(str.sec);
    string sym, open, comment, magic, ticket, order_profit, order_target, pack_profit, pack_target;
+   double p;
    
    for (int i = 0; i < pvec.size(); i++){
       for (int j = 0; j < pvec[i].size(); j++){ 
@@ -381,13 +382,14 @@ void Log(void)
             Alert(pvec[i].GetTicket(j), " orderi secilemedi");
          }
          sym = OrderSymbol(); // test
-         open = DoubleToStr(OrderOpenPrice());
+         open = DoubleToString(OrderOpenPrice());
          comment = OrderComment();
          magic = IntegerToString(OrderMagicNumber());
          ticket = IntegerToString(OrderTicket());
-         order_profit = IntegerToString((int)NormalizeDouble(OrderProfit(), Digits) / Point);
+         p = NormalizeDouble(OrderProfit(), Digits);
+         order_profit = DoubleToString(p);
          order_target = IntegerToString(GetOrderTarget());
-         pack_profit = IntegerToString(pvec[i].GetProfit());
+         pack_profit = DoubleToString(pvec[i].GetProfit());
          pack_target = IntegerToString(pvec[i].GetTargetProfit());
          FileWrite(lfh, date,  
                   time,  
