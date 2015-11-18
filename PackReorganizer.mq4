@@ -15,7 +15,7 @@
 #define  INITIAL_PACK_VEC_SIZE 128
 #define  NUM_VALID_PARITIES 28
 
-extern int ex_magic_no = 12345;  ///< Magic number of target orders
+extern int ex_magic_no = 11111;  ///< Magic number of target orders
 extern int ex_tp1 = 10;          ///< Take profit pips 1
 extern int ex_tp2 = 20;          ///< Take profit pips 2
 extern int ex_tp3 = 30;          ///< Take profit pips 3
@@ -322,7 +322,7 @@ bool IsValidComment(const string comment)
 bool IsValidMagic(const string comment)
 {
    int magic_comment = StringToInteger(StringSubstr(comment, 2));    
-   return magic_comment == OrderMagicNumber();
+   return (magic_comment == OrderMagicNumber()) && (magic_comment == ex_magic_no);
 }
 
 /*! A global function to re-organize packages. Traverses all open orders and 
