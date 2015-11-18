@@ -95,7 +95,8 @@ TarihZaman\tIndex\tSymbol\tOpenPrice\tOrderComment\tMagicNumber\tTicketNumber\tT
 17) [OC] Class variable isimlerinde hocanin belirledigi syntaxa uyabiliriz. Simdilik karisik isimlendirmeler. Herkese OK ise variable isimleri hocanin dersteki
 orneklerindeki gibi yapabiliriz. Veya herkesin OK diyecegi bir style guide. 16/11/2015
 
-18) [OC] hasOrder aslinda pack vector member function olmali. order vektordeki herhangi bir packte olabilir. 18/11/2015
+18) DONE 18/11/2015
+[OC] hasOrder aslinda pack vector member function olmali. order vektordeki herhangi bir packte olabilir. 18/11/2015
 
 19) [OC] Debug :) 18/11/2015
 [OC]: Log function fixed. 18/11/2015

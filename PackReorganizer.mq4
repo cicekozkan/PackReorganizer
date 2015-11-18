@@ -38,7 +38,6 @@ public:
    bool ClosePack(void);
    double GetProfit(void);  
    int GetTargetProfit(void); 
-   bool hasOrder(int);
    /*!\return Indexed order's ticket number*/
    int GetTicket(int index){return imTicketarray[index];}
 };
@@ -163,15 +162,6 @@ int Pack::GetTargetProfit(void)
    return total;
 }
 
-/*!\param ticket: Ticket number of the order
-   \return True if the order with given ticket number is in the pack; false otherwise
-*/
-bool Pack::hasOrder(int ticket)
-{
-   for (int i = 0; i < counter; i++)
-      if (imTicketarray[i] == ticket)  return true;
-   return false;
-}
 // ------------------------------------------- PACK VECTOR CLASS --------------------------------------------------------- //
 /*! Represents a pack vector */
 class PackVector {
@@ -188,6 +178,7 @@ public:
    int size(void){return m_index;}
    bool checkTakeProfit(int index);
    int GetNumTotalOrders(void);
+   bool hasOrder(int);
 };
 
 /*! Mmics C++ vector<> push_back method. Places given pack 
@@ -242,6 +233,19 @@ int PackVector::GetNumTotalOrders(void)
       total += m_pack[i].size();
    }//end for - traverse packs in the pack vector
    return total;
+}
+
+/*!\param ticket: Ticket number of the order
+   \return True if the order with given ticket number is in the pack vector; false otherwise
+*/
+bool PackVector::hasOrder(int ticket)
+{
+   for (int i = 0; i < m_index; i++){
+      for (int j = 0; j < m_pack[i].size(); j++){
+         if (m_pack[i].GetTicket(j) == ticket)  return true;
+      }//end for - pack
+   }//end for - pack vector
+   return false;
 }
 // ------------------------------------------ GLOBAL FUNCTIONS AND VARIABLES ------------------------------------------------- //
 
@@ -341,11 +345,10 @@ void PackReorganize(void)
       
       if (!IsValidComment(OrderComment())) {Alert("Not valid comment");continue;}
       if (!IsValidMagic(OrderComment())) {Alert("Not valid magic number");continue;}
-      
+      if (pvec.hasOrder(OrderTicket())) continue; // order is already in a pack
       int i;
-      for(i = 0; i < pvec.size(); i++){
-         if (pvec[i].isInsertable(OrderTicket())){ 
-            if(pvec[i].hasOrder(OrderTicket())) break; // order is already in a pack
+      for(i = 0; i < pvec.size(); i++){         
+         if (pvec[i].isInsertable(OrderTicket())){             
             pvec[i].Add(OrderTicket());
             break;
          }
@@ -465,4 +468,6 @@ void OnDeinit(const int reason)
 void OnTick()
 {
    //if (pvec.GetNumTotalOrders() != OrdersTotal()) PackReorganize();
+   //PackReorganize();
+   //Log();
 }
