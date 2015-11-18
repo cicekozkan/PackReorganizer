@@ -40,6 +40,7 @@ public:
    int GetTargetProfit(void); 
    /*!\return Indexed order's ticket number*/
    int GetTicket(int index){return imTicketarray[index];}
+   bool checkTakeProfit(void);
 };
 
 /*! Checks whether given position can be inserted to the package or not
@@ -162,6 +163,12 @@ int Pack::GetTargetProfit(void)
    return total;
 }
 
+/*!   \return True if the sum of the profits of orders in the package is equal to or greater than the target. False otherwise */ 
+bool Pack::checkTakeProfit(void)
+{
+   return GetProfit() >= GetTargetProfit();
+}
+
 // ------------------------------------------- PACK VECTOR CLASS --------------------------------------------------------- //
 /*! Represents a pack vector */
 class PackVector {
@@ -176,7 +183,6 @@ public:
    bool remove(int index);
    /*!\return Number of packages inside the vector*/
    int size(void){return m_index;}
-   bool checkTakeProfit(int index);
    int GetNumTotalOrders(void);
    bool hasOrder(int);
 };
@@ -214,14 +220,6 @@ bool PackVector::remove(int index)
    --m_index; 
    if (ArrayResize(m_pack, m_index, 1024) == -1) return false;
    return true;
-}
-
-/*!\param index: Index of the package to check
-   \return True if the sum of the profits of orders in the package is equal to or greater than the target. False otherwise
-*/ 
-bool PackVector::checkTakeProfit(int index)
-{
-   return m_pack[index].GetProfit() >= m_pack[index].GetTargetProfit();
 }
 
 /*!\return Number of total orders in the pack vector
@@ -343,8 +341,8 @@ void PackReorganize(void)
       	continue;
       }
       
-      if (!IsValidComment(OrderComment())) {Alert("Not valid comment");continue;}
-      if (!IsValidMagic(OrderComment())) {Alert("Not valid magic number");continue;}
+      if (!IsValidComment(OrderComment())) continue;
+      if (!IsValidMagic(OrderComment())) continue;
       if (pvec.hasOrder(OrderTicket())) continue; // order is already in a pack
       int i;
       for(i = 0; i < pvec.size(); i++){         
@@ -358,10 +356,12 @@ void PackReorganize(void)
          pvec[i].Add(OrderTicket());
       }
    }// end for - traverse all orders 
+   /*
    // Now we packed all orders. Let's check their profits 
    for(int i = 0; i < pvec.size(); i++){
       if (pvec[i].GetProfit() == pvec[i].GetTargetProfit()) pvec[i].ClosePack();
    }//end for - traverse packs in the pack vector
+   */
 }
 
 /// Log file name
@@ -467,7 +467,13 @@ void OnDeinit(const int reason)
 /*! Expert tick function */                                          
 void OnTick()
 {
-   //if (pvec.GetNumTotalOrders() != OrdersTotal()) PackReorganize();
-   //PackReorganize();
-   //Log();
+   if (pvec.GetNumTotalOrders() != OrdersTotal()){    // a new order 
+      PackReorganize();
+      Log();
+   }
+   
+   for(int i = 0; i < pvec.size(); i++){  // check profit
+      if (pvec[i].checkTakeProfit()) pvec[i].ClosePack();
+      Log();
+   }//end for - traverse packs in the pack vector
 }
