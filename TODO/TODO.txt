@@ -98,5 +98,6 @@ orneklerindeki gibi yapabiliriz. Veya herkesin OK diyecegi bir style guide. 16/1
 18) [OC] hasOrder aslinda pack vector member function olmali. order vektordeki herhangi bir packte olabilir. 18/11/2015
 
 19) [OC] Debug :) 18/11/2015
+[OC]: Log function fixed. 18/11/2015
 
 

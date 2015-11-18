@@ -39,7 +39,7 @@ public:
    int GetProfit(void);  
    int GetTargetProfit(void); 
    bool hasOrder(int);
-   /*!\return Indexed pack's ticket number*/
+   /*!\return Indexed order's ticket number*/
    int GetTicket(int index){return imTicketarray[index];}
 };
 
@@ -355,12 +355,10 @@ void PackReorganize(void)
          pvec[i].Add(OrderTicket());
       }
    }// end for - traverse all orders 
-   Alert("Vector size", pvec.size());
    // Now we packed all orders. Let's check their profits 
    for(int i = 0; i < pvec.size(); i++){
       if (pvec[i].GetProfit() == pvec[i].GetTargetProfit()) pvec[i].ClosePack();
    }//end for - traverse packs in the pack vector
-   Alert("Package reorganized");
 }
 
 /// Log file name
@@ -375,25 +373,64 @@ void Log(void)
    TimeToStruct(TimeCurrent(), str);
    string date = IntegerToString(str.year) + "/" + IntegerToString(str.mon) + "/" + IntegerToString(str.day);
    string time = IntegerToString(str.hour) + ":" + IntegerToString(str.min) + ":" + IntegerToString(str.sec);
+   string sym, open, comment, magic, ticket, order_profit, order_target, pack_profit, pack_target;
    
    for (int i = 0; i < pvec.size(); i++){
       for (int j = 0; j < pvec[i].size(); j++){ 
-         OrderSelect(pvec[i].GetTicket(j), SELECT_BY_TICKET);
+         if (!OrderSelect(pvec[i].GetTicket(j), SELECT_BY_TICKET)){
+            Alert(pvec[i].GetTicket(j), " orderi secilemedi");
+         }
+         sym = OrderSymbol(); // test
+         open = DoubleToStr(OrderOpenPrice());
+         comment = OrderComment();
+         magic = IntegerToString(OrderMagicNumber());
+         ticket = IntegerToString(OrderTicket());
+         order_profit = IntegerToString((int)NormalizeDouble(OrderProfit(), Digits) / Point);
+         order_target = IntegerToString(GetOrderTarget());
+         pack_profit = IntegerToString(pvec[i].GetProfit());
+         pack_target = IntegerToString(pvec[i].GetTargetProfit());
          FileWrite(lfh, date,  
-                        time,  
-                        IntegerToString(i),
-                        OrderSymbol(), 
-                        DoubleToStr(OrderOpenPrice()), 
-                        OrderComment(), 
-                        IntegerToString(OrderMagicNumber()), 
-                        IntegerToString(OrderTicket()), 
-                        IntegerToString((int)NormalizeDouble(OrderProfit(), Digits) / Point),  
-                        IntegerToString(GetOrderTarget()), 
-                        IntegerToString(pvec[i].GetProfit()), 
-                        IntegerToString(pvec[i].GetTargetProfit()));                        
+                  time,  
+                  IntegerToString(i),
+                  sym, 
+                  open, 
+                  comment, 
+                  magic, 
+                  ticket, 
+                  order_profit,  
+                  order_target, 
+                  pack_profit, 
+                  pack_target);                            
       }//end for - traverse orders in the pack
    }//end for - traverse pack vector
    
+}
+
+/*!Test Log function. Create a random pack vector and check the log file manually*/
+void t_Log()
+{
+   int i = 0;
+   //Alert("Pvec size = ", pvec.size());
+   //Alert("Total order# = ", OrdersTotal());
+   for (int k = OrdersTotal() - 1; k >= 0; --k) {
+      //Alert("Order will be selected");
+      if (!OrderSelect(k, SELECT_BY_POS, MODE_TRADES)) {
+      	Alert("Emir secilemedi... Hata kodu : ", GetLastError());
+      	continue;
+      }
+      //Alert("Order selected");
+      pvec.push_back(new Pack);
+      //Alert("New Pack pushed");
+      if (pvec[i].Add(OrderTicket()) == -1){
+         Alert("Couldn't add new order");   
+      }else{
+         Alert("Added order ticket = ", OrderTicket());
+      }
+      //Alert("New order added");  
+      if(k != 0 && k%3 == 0)  ++i;
+   }//end for - traverse all orders
+   Alert("Pvec size = ", pvec.size());
+   Log();   
 }
 
 // ------------------------------------------------- EXPERT FUNCTIONS ----------------------------------------------- //
@@ -401,6 +438,7 @@ void Log(void)
 /*! Expert initialization function */   
 int OnInit()
 {
+   
    lfh = FileOpen(log_file_name, FILE_WRITE | FILE_CSV); 
    if (lfh == INVALID_HANDLE){
       Alert(log_file_name, " cannot be opened. The error code = ", GetLastError());
@@ -411,6 +449,7 @@ int OnInit()
                   "PackProfitPips", "PackTargetProfitPips");
    PackReorganize();
    Log();
+   //t_Log();
    return(INIT_SUCCEEDED);
 }
 
@@ -425,35 +464,3 @@ void OnTick()
 {
    //if (pvec.GetNumTotalOrders() != OrdersTotal()) PackReorganize();
 }
-
-
-
-
-///////////////////////////////
-/*
-+ Degisiklik yapiyoruz: Her bir tickte butun orderlar gezilir; secilen order
-		comment convention ve magic number istedigimiz gibi mi degil mi kontrol edilir.
-		Istedigimiz gibi degilse sonraki ordera gecilir. Istedigimiz gibiyse paketlerde
-		var mi diye bakilir (hasOrder). Varsa bir sonraki ordera gecer; hicbir 
-		pakette yoksa ilk uygun pakete eklenir. 14/11/2015
-
-
-
-for OrrderTotal() {
-    !is valid comment
-        continue;
-    !is valid magic
-        continue;
-    pack.hasContain
-        continue;
-    for (PACK.Size()
-        is insertable
-            pack.add
-            flag = true;
-}
-
-if (flag == true)
-    log
-    flag = false;
-
-*/
