@@ -7,9 +7,13 @@
 #property link      ""
 #property version   "1.00"
 #property strict
+#property show_inputs
 
 #define MAX_NUM_ORDERS 10
 #define MAX_NUM_TRIALS 5
+
+extern int ex_magic_no = 11111;  ///< Magic number of the orders
+extern string ex_comment = "1_11111"; ///< Comment of the orders
 
 // ------------------------------------------ GLOBAL FUNCTIONS ------------------------------------------------- //
 
@@ -37,7 +41,7 @@ void OnStart()
       string sym = getRandomOrder();
       int buy = MathRand()%2;
       for (k = 0; k < MAX_NUM_TRIALS; k++){
-         ticket = OrderSend(sym, buy, 0.1, MarketInfo(sym, buy?MODE_BID:MODE_ASK), 10, 0, 0, "1_11111", 11111);
+         ticket = OrderSend(sym, buy, 0.1, MarketInfo(sym, buy?MODE_BID:MODE_ASK), 10, 0, 0, ex_comment, ex_magic_no);
          if (ticket != -1) break;
       }//end max trials
       if (k == MAX_NUM_TRIALS)   Print(sym, " Paritesinde emir acilamadi. Hata kodu = ", GetLastError());
