@@ -14,6 +14,7 @@
 #define  MAX_NUM_TRIALS 3
 #define  INITIAL_PACK_VEC_SIZE 128
 #define  NUM_VALID_PARITIES 28
+#define  LOG_ACTIONS FALSE
 
 extern int ex_magic_no = 11111;  ///< Magic number of target orders
 extern int ex_tp1 = 10;          ///< Take profit pips 1
@@ -321,9 +322,10 @@ bool IsValidComment(const string comment)
 /*! Check magic number format. The order must be selected before calling this function 
    \return True if magic number in the comment matches the order magic number; false otherwise
 */
-bool IsValidMagic(const string comment)
+bool IsValidMagic(void)
 {
-   int magic_comment = StringToInteger(StringSubstr(comment, 2));    
+   
+   int magic_comment = StringToInteger(StringSubstr(OrderComment(), 2));    
    return (magic_comment == OrderMagicNumber()) && (magic_comment == ex_magic_no);
 }
 
@@ -342,7 +344,7 @@ void PackReorganize(void)
       }
       
       if (!IsValidComment(OrderComment())) continue;
-      if (!IsValidMagic(OrderComment())) continue;
+      if (!IsValidMagic()) continue;
       if (pvec.hasOrder(OrderTicket())) continue; // order is already in a pack
       int i;
       for(i = 0; i < pvec.size(); i++){         
@@ -368,6 +370,9 @@ void PackReorganize(void)
 string log_file_name = "PackReorganizeLog.csv";
 /// Log file handle
 int lfh = INVALID_HANDLE;
+/// second log file to keep track of what's going on
+string log_actions = "LogActions.txt";
+int alfh = INVALID_HANDLE;
 
 /*! Log packs to a tab delimetd csv file */
 void Log(void)
@@ -384,7 +389,7 @@ void Log(void)
          if (!OrderSelect(pvec[i].GetTicket(j), SELECT_BY_TICKET)){
             Alert(pvec[i].GetTicket(j), " orderi secilemedi");
          }
-         sym = OrderSymbol(); // test
+         sym = OrderSymbol(); 
          open = DoubleToString(OrderOpenPrice());
          comment = OrderComment();
          magic = IntegerToString(OrderMagicNumber());
@@ -437,6 +442,30 @@ void t_Log()
    Alert("Pvec size = ", pvec.size());
    Log();   
 }
+/*!\return The number of valid orders*/
+int GetNumValidOrders()
+{
+   if (LOG_ACTIONS)  FileWrite(alfh, "GetNumValidOrders called");   
+   int total = 0;
+   string comment, sym;
+   int magic;
+   for (int k = OrdersTotal() - 1; k >= 0; --k) {
+      if (!OrderSelect(k, SELECT_BY_POS, MODE_TRADES)) {
+      	Alert("Emir secilemedi... Hata kodu : ", GetLastError());
+      	continue;
+      }
+      comment = OrderComment();
+      magic = OrderMagicNumber();
+      sym = OrderSymbol();
+      if (LOG_ACTIONS){
+         FileWrite(alfh, "Order", k, " comment = ", comment, ", magic# = ", magic, ", symbol = ", sym);
+         FileWrite(alfh, "Valid Comment = ",  IsValidComment(comment)?"Yes":"No", ", Valid Magic = ", IsValidMagic()?"Yes":"No",
+                        ", Valid Parity = ", IsValidParity(sym)?"Yes":"No");
+      }
+      if (IsValidComment(comment) && IsValidMagic() && IsValidParity(sym))   ++total;      
+   }//end for
+   return total; 
+}
 
 // ------------------------------------------------- EXPERT FUNCTIONS ----------------------------------------------- //
 
@@ -455,6 +484,16 @@ int OnInit()
    PackReorganize();
    Log();
    //t_Log();
+   
+   if (LOG_ACTIONS){
+      alfh = FileOpen(log_actions, FILE_WRITE | FILE_TXT);
+      if (alfh == INVALID_HANDLE){
+         Alert(log_actions, " cannot be opened. The error code = ", GetLastError());
+         ExpertRemove();
+      }
+      FileWrite(alfh, "Here we go!");
+   }
+   
    return(INIT_SUCCEEDED);
 }
 
@@ -467,13 +506,24 @@ void OnDeinit(const int reason)
 /*! Expert tick function */                                          
 void OnTick()
 {
-   if (pvec.GetNumTotalOrders() != OrdersTotal()){    // a new order 
+   int total_valid_orders = -1;
+   int total_orders_in_vec = -1;
+   total_valid_orders = GetNumValidOrders();
+   total_orders_in_vec = pvec.GetNumTotalOrders();
+   
+   if (total_valid_orders != total_orders_in_vec){    // a new order 
+      if (LOG_ACTIONS)  FileWrite(alfh, "New Order! Num Valid Orders = ", total_valid_orders, " Num orders in pack vector = ", total_orders_in_vec);
       PackReorganize();
       Log();
+   }else{
+      if (LOG_ACTIONS)  FileWrite(alfh, "Num Valid Orders = ", total_valid_orders, " Num orders in pack vector = ", total_orders_in_vec);
    }
    
    for(int i = 0; i < pvec.size(); i++){  // check profit
-      if (pvec[i].checkTakeProfit()) pvec[i].ClosePack();
-      Log();
+      if (pvec[i].checkTakeProfit()){ 
+         if (LOG_ACTIONS)  FileWrite(alfh,"Close Pack", i);
+         pvec[i].ClosePack();
+         Log();
+      }
    }//end for - traverse packs in the pack vector
 }
