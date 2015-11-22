@@ -103,3 +103,9 @@ orneklerindeki gibi yapabiliriz. Veya herkesin OK diyecegi bir style guide. 16/1
 [OC]: GetProfit method fixed. 18/11/2015
 [OC]: checkTakeProfit method fixed. 18/11/2015
 
+20) DONE 23/11/2015 
+[OC] Write a new method for PackVector class to sort the packages with their size. 22/11/2015
+	[OC] Assign an id to each pack to test the sort algorithm. It can be used to keep track of closed packs
+
+21) [OC] Pack::ClosePack method should start the loop from the last element; not the first element. Make sure all loops start from the last element. 22/11/2015
+

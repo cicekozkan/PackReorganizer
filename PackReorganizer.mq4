@@ -14,7 +14,7 @@
 #define  MAX_NUM_TRIALS 3
 #define  INITIAL_PACK_VEC_SIZE 128
 #define  NUM_VALID_PARITIES 28
-#define  LOG_ACTIONS FALSE
+#define  LOG_ACTIONS TRUE
 
 extern int ex_magic_no = 11111;  ///< Magic number of target orders
 extern int ex_tp1 = 10;          ///< Take profit pips 1
@@ -28,9 +28,10 @@ class Pack{
    int counter ;           ///< Number of orders in the package
    int m_total_profit_pip; ///< Total profit of the pack in pips
    int m_target_profit_pip; ///< Target profit of the pack in pips
+   int m_id;                 ///< unique id of the pack
 public:
    /*!Default constructor*/
-   Pack(): counter(0), m_total_profit_pip(0), m_target_profit_pip(0){ArrayResize(imTicketarray,0,MAX_ORDERS_IN_A_PACK);ArrayResize(smSymbols,0,MAX_ORDERS_IN_A_PACK);}
+   Pack(): counter(0), m_total_profit_pip(0), m_target_profit_pip(0), m_id(0){ArrayResize(imTicketarray,0,MAX_ORDERS_IN_A_PACK);ArrayResize(smSymbols,0,MAX_ORDERS_IN_A_PACK);}
    bool isInsertable(const int);
    /*!\return Number of positions*/
    int size(){return counter;}
@@ -42,6 +43,7 @@ public:
    /*!\return Indexed order's ticket number*/
    int GetTicket(int index){return imTicketarray[index];}
    bool checkTakeProfit(void);
+   int GetId(void){return m_id;}
 };
 
 /*! Checks whether given position can be inserted to the package or not
@@ -90,6 +92,7 @@ int Pack::Add(const int cTicket){
    counter++;
    m_total_profit_pip = GetProfit();
    m_target_profit_pip = GetTargetProfit();
+   m_id += OrderTicket();
    return lastArraySize + 1;
 }
 
@@ -186,6 +189,7 @@ public:
    int size(void){return m_index;}
    int GetNumTotalOrders(void);
    bool hasOrder(int);
+   void sort(void);
 };
 
 /*! Mmics C++ vector<> push_back method. Places given pack 
@@ -246,6 +250,22 @@ bool PackVector::hasOrder(int ticket)
    }//end for - pack vector
    return false;
 }
+
+/*!Sort packs in descending direction. Inserting sort algorithm is selected since it is adaptive. Any other ideas? */
+void PackVector::sort(void)
+{
+   for (int i = 1; i < m_index -1; i++){
+      int j = i;
+      while ( (j > 0) && (m_pack[j-1].size() < m_pack[j].size())){
+         Pack *temp = new Pack;
+         temp = m_pack[j-1];
+         m_pack[j-1] = m_pack[j];
+         m_pack[j] = temp;
+         --j;
+      }//end while              
+   }//end for - pack traverse in vector
+}
+
 // ------------------------------------------ GLOBAL FUNCTIONS AND VARIABLES ------------------------------------------------- //
 
 PackVector pvec;     ///< Global PackVector class object
@@ -347,6 +367,7 @@ void PackReorganize(void)
       if (!IsValidMagic()) continue;
       if (pvec.hasOrder(OrderTicket())) continue; // order is already in a pack
       int i;
+      pvec.sort();
       for(i = 0; i < pvec.size(); i++){         
          if (pvec[i].isInsertable(OrderTicket())){             
             pvec[i].Add(OrderTicket());
@@ -383,6 +404,7 @@ void Log(void)
    string time = IntegerToString(str.hour) + ":" + IntegerToString(str.min) + ":" + IntegerToString(str.sec);
    string sym, open, comment, magic, ticket, order_profit, order_target, pack_profit, pack_target;
    double p;
+   int pack_id;
    
    for (int i = 0; i < pvec.size(); i++){
       for (int j = 0; j < pvec[i].size(); j++){ 
@@ -397,6 +419,7 @@ void Log(void)
          p = NormalizeDouble(OrderProfit(), Digits);
          order_profit = DoubleToString(p);
          order_target = IntegerToString(GetOrderTarget());
+         pack_id = pvec[i].GetId();
          pack_profit = DoubleToString(pvec[i].GetProfit());
          pack_target = IntegerToString(pvec[i].GetTargetProfit());
          FileWrite(lfh, date,  
@@ -409,6 +432,7 @@ void Log(void)
                   ticket, 
                   order_profit,  
                   order_target, 
+                  pack_id,
                   pack_profit, 
                   pack_target);                            
       }//end for - traverse orders in the pack
@@ -479,7 +503,7 @@ int OnInit()
       ExpertRemove();
    }
    FileWrite(lfh, "Date", "Time", "PackIndex", "OrderSymbol", "OrderOpenPrice", "OrderComment", "OrderMagicNumber", 
-                  "OrderTicketNumber", "OrderProfitPips", "OrderTargetProfitPips", 
+                  "OrderTicketNumber", "OrderProfitPips", "OrderTargetProfitPips","PackID", 
                   "PackProfitPips", "PackTargetProfitPips");
    PackReorganize();
    Log();
@@ -513,15 +537,15 @@ void OnTick()
    
    if (total_valid_orders != total_orders_in_vec){    // a new order 
       if (LOG_ACTIONS)  FileWrite(alfh, "New Order! Num Valid Orders = ", total_valid_orders, " Num orders in pack vector = ", total_orders_in_vec);
-      PackReorganize();
-      Log();
+      PackReorganize(); // create the vector for the first time
+      Log();            // log it       
    }else{
       if (LOG_ACTIONS)  FileWrite(alfh, "Num Valid Orders = ", total_valid_orders, " Num orders in pack vector = ", total_orders_in_vec);
    }
    
    for(int i = 0; i < pvec.size(); i++){  // check profit
       if (pvec[i].checkTakeProfit()){ 
-         if (LOG_ACTIONS)  FileWrite(alfh,"Close Pack", i);
+         if (LOG_ACTIONS)  FileWrite(alfh,"Close Pack", i, ". Pack id = ", pvec[i].GetId());
          pvec[i].ClosePack();
          Log();
       }
