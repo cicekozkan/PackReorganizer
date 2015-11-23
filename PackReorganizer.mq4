@@ -108,7 +108,7 @@ void Pack::Display(void){
 */
 bool Pack::ClosePack(void)
 {
-   for(int i = 0; i < counter; i++){
+   for(int i = counter-1; i >=0 ; --i){
       int ticket = imTicketarray[i];
    	if (!OrderSelect(ticket, SELECT_BY_TICKET, MODE_TRADES)) {
 		   Alert(ticket, " No'lu emir secilemedi... Hata kodu : ", GetLastError());
@@ -142,7 +142,7 @@ bool Pack::ClosePack(void)
 double Pack::GetProfit(void)
 {
    double total = 0.;
-   for (int i=0; i < counter; i++){
+   for (int i=0; i < counter; ++i){
       if (!OrderSelect(imTicketarray[i], SELECT_BY_TICKET, MODE_TRADES)) {
 		   Alert(imTicketarray[i], " No'lu emir secilemedi... Hata kodu : ", GetLastError());
 		   return -1;
@@ -157,7 +157,7 @@ int Pack::GetTargetProfit(void)
 {
    int tp = -1;
    int total = 0;
-   for (int i=0; i < counter; i++){
+   for (int i=0; i < counter; ++i){
       if (!OrderSelect(imTicketarray[i], SELECT_BY_TICKET, MODE_TRADES)) {
 		   Alert(imTicketarray[i], " No'lu emir secilemedi... Hata kodu : ", GetLastError());
 		   return -1;
