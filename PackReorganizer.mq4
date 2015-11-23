@@ -223,7 +223,7 @@ bool PackVector::remove(int index)
 {
    if(!m_pack[index].ClosePack()) return false;
    --m_index; 
-   if (ArrayResize(m_pack, m_index, 1024) == -1) return false;
+   if (ArrayResize(m_pack, m_index) == -1) return false;
    return true;
 }
 
@@ -546,7 +546,7 @@ void OnTick()
    for(int i = 0; i < pvec.size(); i++){  // check profit
       if (pvec[i].checkTakeProfit()){ 
          if (LOG_ACTIONS)  FileWrite(alfh,"Close Pack", i, ". Pack id = ", pvec[i].GetId());
-         pvec[i].ClosePack();
+         pvec.remove(i);
          Log();
       }
    }//end for - traverse packs in the pack vector
