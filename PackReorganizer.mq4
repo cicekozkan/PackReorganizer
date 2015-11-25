@@ -266,13 +266,7 @@ bool PackVector::hasOrder(int ticket)
 
 /*!Sort packs in descending direction. Inserting sort algorithm is selected since it is adaptive. Any other ideas? */
 void PackVector::sort(void)
-{
-   if(LOG_ACTIONS) {
-      FileWrite(alfh,"Before sorting the sizes and ids");
-      for (int i = 0; i < m_index; i++)
-         FileWrite(alfh,"ID = ", m_pack[i].GetId(), " Size: ", m_pack[i].size());   
-   }
-   
+{ 
    Pack *current = new Pack;
    for (int i = 1; i < m_index; i++){
       int j = i;
@@ -283,11 +277,6 @@ void PackVector::sort(void)
       }//end while
       m_pack[j] = current;              
    }//end for - pack traverse in vector
-   if(LOG_ACTIONS) {
-      FileWrite(alfh,"After sorting the sizes and ids");
-      for (int i = 0; i < m_index; i++)
-         FileWrite(alfh,"ID = ", m_pack[i].GetId(), " Size: ", m_pack[i].size());   
-   }
 }
 
 // ------------------------------------------ GLOBAL FUNCTIONS AND VARIABLES ------------------------------------------------- //
@@ -402,6 +391,7 @@ void PackReorganize(void)
          pvec[i].Add(OrderTicket());
       }
    }// end for - traverse all orders 
+   pvec.sort(); // sort at the end again
    /*
    // Now we packed all orders. Let's check their profits 
    for(int i = 0; i < pvec.size(); i++){
@@ -527,11 +517,7 @@ int OnInit()
    }
    FileWrite(lfh, "Date", "Time", "Comment", "PackIndex", "OrderSymbol", "OrderOpenPrice", "OrderComment", "OrderMagicNumber", 
                   "OrderTicketNumber", "OrderProfitPips", "OrderTargetProfitPips","PackID", 
-                  "PackProfitPips", "PackTargetProfitPips");
-   PackReorganize();
-   Log("FirstOrganization");
-   //t_Log();
-   
+                  "PackProfitPips", "PackTargetProfitPips");   
    if (LOG_ACTIONS){
       alfh = FileOpen(log_actions, FILE_WRITE | FILE_TXT);
       if (alfh == INVALID_HANDLE){
@@ -540,6 +526,9 @@ int OnInit()
       }
       FileWrite(alfh, "Here we go!\n");
    }
+   PackReorganize();
+   Log("FirstOrganization");
+   //t_Log();
    
    return(INIT_SUCCEEDED);
 }
