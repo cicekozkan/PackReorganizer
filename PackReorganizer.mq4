@@ -267,16 +267,27 @@ bool PackVector::hasOrder(int ticket)
 /*!Sort packs in descending direction. Inserting sort algorithm is selected since it is adaptive. Any other ideas? */
 void PackVector::sort(void)
 {
-   for (int i = 1; i < m_index -1; i++){
+   if(LOG_ACTIONS) {
+      FileWrite(alfh,"Before sorting the sizes and ids");
+      for (int i = 0; i < m_index; i++)
+         FileWrite(alfh,"ID = ", m_pack[i].GetId(), " Size: ", m_pack[i].size());   
+   }
+   
+   Pack *current = new Pack;
+   for (int i = 1; i < m_index; i++){
       int j = i;
-      while ( (j > 0) && (m_pack[j-1].size() < m_pack[j].size())){
-         Pack *temp = new Pack;
-         temp = m_pack[j-1];
-         m_pack[j-1] = m_pack[j];
-         m_pack[j] = temp;
+      current = m_pack[i];
+      while ( (j > 0) && (m_pack[j-1].size() < current.size())){
+         m_pack[j] = m_pack[j-1];
          --j;
-      }//end while              
+      }//end while
+      m_pack[j] = current;              
    }//end for - pack traverse in vector
+   if(LOG_ACTIONS) {
+      FileWrite(alfh,"After sorting the sizes and ids");
+      for (int i = 0; i < m_index; i++)
+         FileWrite(alfh,"ID = ", m_pack[i].GetId(), " Size: ", m_pack[i].size());   
+   }
 }
 
 // ------------------------------------------ GLOBAL FUNCTIONS AND VARIABLES ------------------------------------------------- //
@@ -481,7 +492,7 @@ void t_Log()
 /*!\return The number of valid orders*/
 int GetNumValidOrders()
 {
-   if (LOG_ACTIONS)  FileWrite(alfh, "*********GetNumValidOrders called************");   
+   //if (LOG_ACTIONS)  FileWrite(alfh, "*********GetNumValidOrders called************");   
    int total = 0;
    string comment, sym;
    int magic;
