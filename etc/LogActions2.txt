@@ -1,0 +1,165 @@
+Here we go!
+
+Close Pack9. Pack id = 268893962
+*********PackVector::remove called************
+Vector size before closing the pack: 16
+************Pack::ClosePack called*********************
+Ticket#: 89594297, Sell
+Order lots: 1, Close price: 1.41255
+Ticket#: 89649832, Buy
+Order lots: 1, Close price: 2.30078
+Order lots: 1, Close price: 2.30035
+Order lots: 1, Close price: 2.30015
+Ticket#: 89649833, Buy
+Order lots: 1, Close price: 122.698
+Pack9 closed successfully
+Vector size after closing the pack: 15
+
+Close Pack6. Pack id = 268893997
+*********PackVector::remove called************
+Vector size before closing the pack: 15
+************Pack::ClosePack called*********************
+Ticket#: 89594315, Buy
+Order lots: 1, Close price: 1.02188
+Ticket#: 89649837, Buy
+Order lots: 1, Close price: 2.3006
+Ticket#: 89649845, Sell
+Order lots: 1, Close price: 130.345
+Pack6 closed successfully
+Vector size after closing the pack: 14
+
+Close Pack3. Pack id = 358543838
+*********PackVector::remove called************
+Vector size before closing the pack: 14
+************Pack::ClosePack called*********************
+Ticket#: 89594319, Buy
+Order lots: 1, Close price: 0.7257900000000001
+Ticket#: 89649830, Sell
+Order lots: 1, Close price: 1.54554
+Ticket#: 89649843, Sell
+Order lots: 1, Close price: 92.25700000000001
+Ticket#: 89649846, Buy
+Order lots: 1, Close price: 1.61605
+Pack3 closed successfully
+Vector size after closing the pack: 13
+
+Close Pack8. Pack id = 179299669
+*********PackVector::remove called************
+Vector size before closing the pack: 13
+************Pack::ClosePack called*********************
+Ticket#: 89649834, Buy
+Order lots: 1, Close price: 0.70252
+Ticket#: 89649835, Buy
+Order lots: 1, Close price: 89.00400000000001
+Pack8 closed successfully
+Vector size after closing the pack: 12
+
+Close Pack1. Pack id = 358599434
+*********PackVector::remove called************
+Vector size before closing the pack: 12
+************Pack::ClosePack called*********************
+Ticket#: 89649839, Sell
+Order lots: 1, Close price: 0.67153
+Ticket#: 89649863, Buy
+Order lots: 1, Close price: 0.7024
+Ticket#: 89649865, Buy
+Order lots: 1, Close price: 122.653
+Ticket#: 89649867, Sell
+Order lots: 1, Close price: 0.9626
+Pack1 closed successfully
+Vector size after closing the pack: 11
+
+Close Pack4. Pack id = 268893989
+*********PackVector::remove called************
+Vector size before closing the pack: 11
+************Pack::ClosePack called*********************
+Ticket#: 89594313, Sell
+Order lots: 1, Close price: 2.01125
+Order lots: 1, Close price: 2.01134
+Ticket#: 89649836, Sell
+Order lots: 1, Close price: 120.078
+Ticket#: 89649840, Buy
+Order lots: 1, Close price: 1.61693
+Pack4 closed successfully
+Vector size after closing the pack: 10
+
+Close Pack2. Pack id = 358543871
+*********PackVector::remove called************
+Vector size before closing the pack: 10
+************Pack::ClosePack called*********************
+Ticket#: 89594306, Sell
+Order lots: 1, Close price: 0.73952
+Order lots: 1, Close price: 0.73942
+Ticket#: 89649842, Buy
+Order lots: 1, Close price: 1.51206
+Ticket#: 89649861, Sell
+Order lots: 1, Close price: 0.87382
+Ticket#: 89649862, Buy
+Order lots: 1, Close price: 130.307
+Pack2 closed successfully
+Vector size after closing the pack: 9
+
+Close Pack4. Pack id = 268782895
+*********PackVector::remove called************
+Vector size before closing the pack: 9
+************Pack::ClosePack called*********************
+Ticket#: 89594277, Buy
+Order lots: 1, Close price: 1.46931
+Order lots: 1, Close price: 1.46921
+Ticket#: 89594308, Sell
+Order lots: 1, Close price: 2.01159
+Ticket#: 89594310, Buy
+Order lots: 1, Close price: 80.55200000000001
+Pack4 closed successfully
+Vector size after closing the pack: 8
+
+Close Pack1. Pack id = 358599389
+*********PackVector::remove called************
+Vector size before closing the pack: 8
+************Pack::ClosePack called*********************
+Ticket#: 89649831, Buy
+Order lots: 1, Close price: 185.435
+Ticket#: 89649841, Buy
+Order lots: 1, Close price: 1.02251
+Ticket#: 89649858, Sell
+Order lots: 1, Close price: 1.41239
+Ticket#: 89649859, Sell
+Order lots: 1, Close price: 1.09866
+Pack1 closed successfully
+Vector size after closing the pack: 7
+
+Close Pack4. Pack id = 179188581
+*********PackVector::remove called************
+Vector size before closing the pack: 7
+************Pack::ClosePack called*********************
+Ticket#: 89594274, Sell
+Order lots: 1, Close price: 2.01009
+Ticket#: 89594307, Buy
+Order lots: 1, Close price: 80.82299999999999
+Pack4 closed successfully
+Vector size after closing the pack: 6
+
+Close Pack2. Pack id = 268782926
+*********PackVector::remove called************
+Vector size before closing the pack: 6
+************Pack::ClosePack called*********************
+Ticket#: 89594300, Sell
+Order lots: 1, Close price: 1.61087
+Ticket#: 89594309, Sell
+Order lots: 1, Close price: 1.54648
+Ticket#: 89594317, Sell
+Order lots: 1, Close price: 122.601
+Pack2 closed successfully
+Vector size after closing the pack: 5
+
+Close Pack2. Pack id = 179188637
+*********PackVector::remove called************
+Vector size before closing the pack: 5
+************Pack::ClosePack called*********************
+Ticket#: 89594316, Buy
+Order lots: 1, Close price: 1.54842
+Ticket#: 89594321, Buy
+Order lots: 1, Close price: 130.13
+Pack2 closed successfully
+Vector size after closing the pack: 4
+

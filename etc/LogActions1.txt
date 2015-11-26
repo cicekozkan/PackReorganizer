@@ -1,0 +1,30 @@
+Here we go!
+
+Close Pack2. Pack id = 358377168
+*********PackVector::remove called************
+Vector size before closing the pack: 7
+************Pack::ClosePack called*********************
+Ticket#: 89594266, Sell
+Order lots: 1, Close price: 0.70224
+Ticket#: 89594276, Sell
+Order lots: 1, Close price: 1.10242
+Ticket#: 89594312, Sell
+Order lots: 1, Close price: 0.76921
+Ticket#: 89594314, Buy
+Order lots: 1, Close price: 122.71
+Pack2 closed successfully
+Vector size after closing the pack: 6
+
+Close Pack4. Pack id = 268782858
+*********PackVector::remove called************
+Vector size before closing the pack: 6
+************Pack::ClosePack called*********************
+Ticket#: 89594275, Sell
+Order lots: 1, Close price: 1.10254
+Ticket#: 89594279, Buy
+Order lots: 1, Close price: 1.41171
+Ticket#: 89594304, Sell
+Order lots: 1, Close price: 185.663
+Pack4 closed successfully
+Vector size after closing the pack: 5
+
