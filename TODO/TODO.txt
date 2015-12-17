@@ -1,83 +1,48 @@
-Arkadaslar yapilmasi gerektigini dusundugunuz aksiyonlari buraya yeni bir sayi ile baslayip girebilirsiniz. 
-Her yazdiginiz aksiyonun basina isim bas harflerinizi [] icinde yazin. O konu hakkinda yorum yapmak isteyenler ayni 
-sayi altinda kendi bas harfleri ile dusunduklerini/yorumlarini yazarak daha guzel, verimli implementasyonlar yapilabilir.
-Tamamlanan aksiyonlarin basina DONE seklinde yazalim. Daha sonradan History yazarken donup bakabiliriz.
-Ornek olmasi icin 1. actiona bakabilirsiniz.
+MY PROJECT -*- mode: org -*-
 
-1) DONE. 08/11/2015
-[OC] Pack ve PackVector siniflarinin dokumantasyonunu tamamla. 08/11/2015 
-
-2) DONE. 11/11/2015 
-[OC] Pack vectorun push_back uye fonksiyonu arguman olarak pack pointer almali. Vectorun push_back uye fonksiyonunun 
+* DONE Pack ve PackVector siniflarinin dokumantasyonunu tamamla. 08/11/2015
+* DONE Pack vectorun push_back uye fonksiyonu arguman olarak pack pointer almali. Vectorun push_back uye fonksiyonunun 
 C++ prototipi void push_back( const T& value ); MQL de referans olmadigi icin pointer almaliyiz. 08/11/2015
-
-3) [OC] Test amacli yazilan fonksiyonlari t_function() seklinde isimlendir. Daha sonra baska bir dosyaya tasi. Ilk olarak 
+* DONE Test amacli yazilan fonksiyonlari t_function() seklinde isimlendir. Daha sonra baska bir dosyaya tasi. Ilk olarak 
 getRandomOrder cagrilarak yapilan 50 tane random emir acma islemini bir test fonksiyonuna tasi. 08/11/2015
 [OC] Random order acan ve acik butun orderlari kapatan iki tane script yazildi. 10/11/2015
-
-4) DONE 10/11/2015
-[OC] Butun hard-coded degerleri degiskenlere ata. Ornek olarak random acilan emir sayisi. 08/11/2015
-
-5) DONE 11/11/2015
-[OC] Global bir pack vector degiskeni tamamla ve PackReorginize() global fonksiyonunda bu degiskeni kullan. Asagidaki 
+* DONE Butun hard-coded degerleri degiskenlere ata. Ornek olarak random acilan emir sayisi. 08/11/2015
+* DONE Global bir pack vector degiskeni tamamla ve PackReorginize() global fonksiyonunda bu degiskeni kullan. Asagidaki 
 global degiskenlere hic ihtiyac kalmamali: 08/11/2015
 	int pack_index = 0;
 	Pack p;
 	Pack p_arr[]; 
-
-6) DONE 18/11/2015 
-[OC] PackVector sinifina asagidaki uye fonskiyonlari ekle. 10/11/2015
-	- [X] remove(int index): indexi verilen paketteki orderlari kapatacak, o paketi silecek, member variable dizileri shrink edecek, lastordertotal degiskenini update edecek
-	- [X] reOrginize(): yeni acilan paketi vektore ekleyecek
-		+ Buna gerek yok sanirim. Global reorganize fonksiyonu var.
-	- [X] bool checkTakeProfit(int index): paket kari kosuluna gore true false dodurecek. 11/11/2015
-		- [X] Paket sinifi icin toplam kari pip olarak donduren bir uye fonksiyonu yaz. 11/11/2015 
-		- [X] Paket sinifi icin target take profiti pip olarak donduren bir uye fonksiyon yaz. 11/11/2015 
-	- [X] size: Vektordeki paket sayisini donduren uye fonksiyon. 11/11/2015 
-
-7) DONE 18/11/2015
-[OC] Tick fonksiyonunda yapilacaklar: 10/11/2015
-	- [X] Yeni bir emir acildiginde paket vektorunu reOrginize edecek
-		+ Degisiklik yapiyoruz: Her bir tickte butun orderlar gezilir; secilen order
-		comment convention ve magic number istedigimiz gibi mi degil mi kontrol edilir.
-		Istedigimiz gibi degilse sonraki ordera gecilir. Istedigimiz gibiyse paketlerde
-		var mi diye bakilir (hasOrder). Varsa bir sonraki ordera gecer; hicbir 
-		pakette yoksa ilk uygun pakete eklenir. 14/11/2015
-	- [X] Paket vektorundeki kar durumunu kontrol edip kosulu saglayan paketleri kapatacak. 10/11/2015
-
-8) DONE 16/11/2015
-[SD] IsValidParity fonksiyonu yazilsin. Gelen parity valid parite dizisindeki paritelerdern
+* DONE PackVector sinifina asagidaki uye fonskiyonlari ekle. 10/11/2015
+- [X] remove(int index): indexi verilen paketteki orderlari kapatacak, o paketi silecek, member variable dizileri shrink edecek, lastordertotal degiskenini update edecek
+- [X] reOrginize(): yeni acilan paketi vektore ekleyecek
+   + Buna gerek yok sanirim. Global reorganize fonksiyonu var.
+- [X] bool checkTakeProfit(int index): paket kari kosuluna gore true false dodurecek. 11/11/2015
+- [X] Paket sinifi icin toplam kari pip olarak donduren bir uye fonksiyonu yaz. 11/11/2015 
+- [X] Paket sinifi icin target take profiti pip olarak donduren bir uye fonksiyon yaz. 11/11/2015 
+- [X] size: Vektordeki paket sayisini donduren uye fonksiyon. 11/11/2015 
+* DONE Tick fonksiyonunda yapilacaklar: 10/11/2015
+- [X] Yeni bir emir acildiginde paket vektorunu reOrginize edecek
+   + Degisiklik yapiyoruz: Her bir tickte butun orderlar gezilir; secilen order
+comment convention ve magic number istedigimiz gibi mi degil mi kontrol edilir.
+Istedigimiz gibi degilse sonraki ordera gecilir. Istedigimiz gibiyse paketlerde
+var mi diye bakilir (hasOrder). Varsa bir sonraki ordera gecer; hicbir 
+pakette yoksa ilk uygun pakete eklenir. 14/11/2015
+- [X] Paket vektorundeki kar durumunu kontrol edip kosulu saglayan paketleri kapatacak. 10/11/2015
+* DONE IsValidParity fonksiyonu yazilsin. Gelen parity valid parite dizisindeki paritelerdern
 biri mi degil mi onu kontrol etsin. Bu fonksiyon isInsertible fonksiyonundan once cagrilmali 14/11/2015
-
-9) DONE 15/11/2015
-[VA] Comment konvensiyonu kontrol edilmeli. Bu fonksiyon isInsertible fonksiyonundan 
+* DONE Comment konvensiyonu kontrol edilmeli. Bu fonksiyon isInsertible fonksiyonundan 
 once cagrilmali 14/11/2015
-
-10) DONE 16/11/2015 
-[OC] Magic number kontrolu de isinsertible fonksiyon cagrisindan once yapilmali 14/11/2015
-
-11) DONE 15/11/2015
-Pack classindak diziler fixed size olsun. 
-
-12) DONE 16/11/2015
-PackVector::push_back uye fonksiyonu member variable dizinin boyutunu kontrol edecek.
+* DONE Magic number kontrolu de isinsertible fonksiyon cagrisindan once yapilmali 14/11/2015
+* DONE Pack classindak diziler fixed size olsun. 
+* DONE PackVector::push_back uye fonksiyonu member variable dizinin boyutunu kontrol edecek.
 Yeterli alan yoksa ArrayResize ile reallocation yapacak.
-
-13) DONE 16/11/2015
-Pack classina hasContain(ticket num) [function name hasOrder olsun] member function eklenecek
-
-14) DONE 15/11/2015 
-Pack::ClosePack ismini Pack::Close yap. Fonksiyon true donmuyor. Butun islemleri basarili 
+* DONE Pack classina hasContain(ticket num) [function name hasOrder olsun] member function eklenecek
+* DONE Pack::ClosePack ismini Pack::Close yap. Fonksiyon true donmuyor. Butun islemleri basarili 
 ise true don. Herhangi bir emir kapatilamazsa false don. 
 [OC] Close MQLde kullanilan bir array oldugu icin fonksiyonun ismi Close olamaz. 15/11/2015
-
-15) DONE. Add and close member functions update these variables. 16/11/2015 
+* DONE Add and close member functions update these variables. 16/11/2015 
 Pack classta totalprofit ve target profit member variablelar olsun.
-
-16) DONE 17/11/2015
-Pack vectordeki her degisikligi logla. 
-
-
+* DONE Pack vectordeki her degisikligi logla. 
 TarihZaman\tIndex\tSymbol\tOpenPrice\tOrderComment\tMagicNumber\tTicketNumber\tTotalProfit\tTargetProfit\n
 0	USDCAD	
 0	GBPNZD
@@ -91,24 +56,23 @@ TarihZaman\tIndex\tSymbol\tOpenPrice\tOrderComment\tMagicNumber\tTicketNumber\tT
 1	Y
 1	Z
 1	T
-
-17) [OC] Class variable isimlerinde hocanin belirledigi syntaxa uyabiliriz. Simdilik karisik isimlendirmeler. Herkese OK ise variable isimleri hocanin dersteki
+* DONE Class variable isimlerinde hocanin belirledigi syntaxa uyabiliriz. Simdilik karisik isimlendirmeler. Herkese OK ise variable isimleri hocanin dersteki
 orneklerindeki gibi yapabiliriz. Veya herkesin OK diyecegi bir style guide. 16/11/2015
-
-18) DONE 18/11/2015
-[OC] hasOrder aslinda pack vector member function olmali. order vektordeki herhangi bir packte olabilir. 18/11/2015
-
-19) [OC] Debug :) 18/11/2015
-[OC]: Log function fixed. 18/11/2015
-[OC]: GetProfit method fixed. 18/11/2015
-[OC]: checkTakeProfit method fixed. 18/11/2015
-
-20) DONE 23/11/2015 
+* DONE hasOrder aslinda pack vector member function olmali. order vektordeki herhangi bir packte olabilir. 18/11/2015
+* DONE Debug :) 18/11/2015
+  - [X] Log function fixed. 18/11/2015
+  - [X] GetProfit method fixed. 18/11/2015
+  - [X] checkTakeProfit method fixed. 18/11/2015
+* DONE 23/11/2015 
 [OC] Write a new method for PackVector class to sort the packages with their size. 22/11/2015
-	[OC] Assign an id to each pack to test the sort algorithm. It can be used to keep track of closed packs
-
-21) DONE 23/11/2015
+[OC] Assign an id to each pack to test the sort algorithm. It can be used to keep track of closed packs
+* DONE 23/11/2015
 [OC] Pack::ClosePack method should start the loop from the last element; not the first element. Hoping to eliminate error 4108. 22/11/2015
-
-22) DONE. Fixed; tested. 26/11/2015 
+* DONE Fixed; tested. 26/11/2015 
 [OC] Sort doesn't work. 24/11/2015
+* TODO Hocanin yaptigi fixleri yap [1/2]
+- [ ] Bazi uye fonksiyonlar private olacak
+- [X] Fonksiyon argumanlarinda pointer olmayanlarin constlugu bir anlam ifade etmiyor. Onlari duzelt
+* TODO Paketlerin miktarini butun paketler ayni miktar dolar olacak sekilde belirle
+* TODO Paketlere stop loss koy
+* TODO Belirli araliklarda random paket ac

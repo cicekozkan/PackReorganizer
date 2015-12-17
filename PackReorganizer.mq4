@@ -32,10 +32,10 @@ class Pack{
 public:
    /*!Default constructor*/
    Pack(): counter(0), m_total_profit_pip(0), m_target_profit_pip(0), m_id(0){ArrayResize(imTicketarray,0,MAX_ORDERS_IN_A_PACK);ArrayResize(smSymbols,0,MAX_ORDERS_IN_A_PACK);}
-   bool isInsertable(const int);
+   bool isInsertable(int);
    /*!\return Number of positions*/
    int size(){return counter;}
-   int Add(const int);
+   int Add(int);
    void Display(void);
    bool ClosePack(void);
    double GetProfit(void);  
@@ -50,7 +50,7 @@ public:
    \param cTicket Ticket number 
    \return True if the position with given ticket number can be inserted to the package; false otherwise 
 */
-bool Pack::isInsertable(const int cTicket){
+bool Pack::isInsertable(int cTicket){
    int ticketArraySize = ArraySize(imTicketarray);
    
    if(ticketArraySize == MAX_ORDERS_IN_A_PACK)
@@ -78,7 +78,7 @@ bool Pack::isInsertable(const int cTicket){
    \param cTicket Ticket number
    \return If successful: number of positions; otherwise -1
 */
-int Pack::Add(const int cTicket){
+int Pack::Add(int cTicket){
 
    if(!(OrderSelect(cTicket, SELECT_BY_TICKET)==true)){
       Print("Order Secilemedi , Hata Kodu :  ",GetLastError());
@@ -213,7 +213,7 @@ bool PackVector::push_back(Pack *value)
    \param index Index of the package in the vector
    \return Selected pack's pointer   
 */
-Pack *PackVector::operator[](const int index)
+Pack *PackVector::operator[](int index)
 {
    return m_pack[index];
 }
@@ -320,7 +320,7 @@ const string valid_parities[NUM_VALID_PARITIES] = {
     index of a found element. If the wanted value isn't found, the function returns the index of an element nearest in value.
    \param parity Parity of the order to check
    \return True if the parity is valid; false otherwise*/
-bool IsValidParity(const string parity)
+bool IsValidParity(string parity)
 {
    for(int i = 0; i < NUM_VALID_PARITIES; i++)
       if(valid_parities[i] == parity)  return true;
@@ -342,7 +342,7 @@ bool IsValidParity(const string parity)
    \param comment Order comment
    \return Return true if comment starts with 1, 2, 3 followed by _ and then followed by a 5 digit number. False otherwise
 */
-bool IsValidComment(const string comment)
+bool IsValidComment(string comment)
 {
    if (StringSubstr(comment, 1, 1) != "_")  return false;
    int first_num = StringToInteger(StringSubstr(comment, 0, 1));
@@ -534,7 +534,7 @@ int OnInit()
 }
 
 /*! Expert deinitialization function */                           
-void OnDeinit(const int reason)
+void OnDeinit(int reason)
 {
    FileClose(lfh);
 }
