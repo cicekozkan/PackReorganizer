@@ -42,7 +42,7 @@ public:
    int GetTargetProfit(void); 
    /*!\return Indexed order's ticket number*/
    int GetTicket(int index){return imTicketarray[index];}
-   bool checkTakeProfit(void);
+   bool ShouldBeClosed(void);
    int GetId(void){return m_id;}
 };
 
@@ -171,7 +171,7 @@ int Pack::GetTargetProfit(void)
 }
 
 /*!   \return True if the sum of the profits of orders in the package is equal to or greater than the target. False otherwise */ 
-bool Pack::checkTakeProfit(void)
+bool Pack::ShouldBeClosed(void)
 {
    return GetProfit() >= GetTargetProfit();
 }
@@ -534,7 +534,7 @@ int OnInit()
 }
 
 /*! Expert deinitialization function */                           
-void OnDeinit(int reason)
+void OnDeinit(const int reason)
 {
    FileClose(lfh);
 }
@@ -558,7 +558,7 @@ void OnTick()
    
    int i = 0;
    while (i < pvec.size()){
-      if (pvec[i].checkTakeProfit()){
+      if (pvec[i].ShouldBeClosed()){
          Log("BeforePackClose"); 
          if (LOG_ACTIONS)  FileWrite(alfh,"Close Pack", i, ". Pack id = ", pvec[i].GetId());
          pvec.remove(i);
@@ -569,7 +569,7 @@ void OnTick()
    }//end while
    /*
    for(int i = 0; i < pvec.size(); i++){  // check profit
-      if (pvec[i].checkTakeProfit()){ 
+      if (pvec[i].ShouldBeClosed()){ 
          if (LOG_ACTIONS)  FileWrite(alfh,"Close Pack", i, ". Pack id = ", pvec[i].GetId());
          pvec.remove(i);
          Log();
