@@ -5,9 +5,9 @@ MY PROJECT -*- mode: org -*-
 - [X] Fonksiyon argumanlarinda pointer olmayanlarin constlugu bir anlam ifade etmiyor. Onlari duzelt
 - [ ] Global variablelar static member variable olacak
 - [ ] Arrayler fixed size olacak
-* TODO Paketlerin miktarini butun paketler ayni miktar dolar olacak sekilde belirle
 * TODO Paketlere stop loss koy
 * TODO Belirli araliklarda random paket ac
+* DONE Paketlerin miktarini butun paketler ayni miktar dolar olacak sekilde belirle <2016-01-13 Wed>
 * DONE Pack ve PackVector siniflarinin dokumantasyonunu tamamla. 08/11/2015
 * DONE Pack vectorun push_back uye fonksiyonu arguman olarak pack pointer almali. Vectorun push_back uye fonksiyonunun 
 C++ prototipi void push_back( const T& value ); MQL de referans olmadigi icin pointer almaliyiz. 08/11/2015
