@@ -180,16 +180,16 @@ bool Pack::ShouldBeClosed(void)
 /*! Represents a pack vector */
 class PackVector {
    Pack *m_pack[];    ///< An array of Packs
-   int m_index;      ///< index
+   int m_num_packs;      ///< Number of packs in the vector
    int m_total_orders;  ///< Number of total orders in the pack vector
 public:
    /*! Default constructor. Initializes the vector with 0 Packs*/
-   PackVector() : m_index(0) {ArrayResize(m_pack, m_index, 1024);}
+   PackVector() : m_num_packs(0) {ArrayResize(m_pack, m_num_packs, 1024);}
    bool PackVector::push_back(Pack *value);
    Pack *operator[](int index);
    bool remove(int index);
    /*!\return Number of packages inside the vector*/
-   int size(void){return m_index;}
+   int size(void){return m_num_packs;}
    int GetNumTotalOrders(void);
    bool hasOrder(int);
    void sort(void);
@@ -203,9 +203,9 @@ public:
 bool PackVector::push_back(Pack *value)
 {
    static int capacity = INITIAL_PACK_VEC_SIZE;
-   if (m_index + 1 == capacity) capacity *= 2;
-   if (ArrayResize(m_pack, m_index + 1, capacity) == -1 ) return false; 
-   else m_pack[m_index++] = value;
+   if (m_num_packs + 1 == capacity) capacity *= 2;
+   if (ArrayResize(m_pack, m_num_packs + 1, capacity) == -1 ) return false; 
+   else m_pack[m_num_packs++] = value;
    return true;
 }
 
@@ -231,8 +231,8 @@ bool PackVector::remove(int index)
     
    if(!m_pack[index].ClosePack()) return false; 
    sort();     // closed pack will be shifted to the end of the array. No chance that there will be 2 packs with 0 elements
-   --m_index; 
-   if (ArrayResize(m_pack, m_index) == -1) return false; // delete 
+   --m_num_packs; 
+   if (ArrayResize(m_pack, m_num_packs) == -1) return false; // delete 
    if (LOG_ACTIONS)  {
       FileWrite(alfh, "Pack", index, " closed successfully");
       FileWrite(alfh, "Vector size after closing the pack: ", ArraySize(m_pack), "\n");
@@ -245,7 +245,7 @@ bool PackVector::remove(int index)
 int PackVector::GetNumTotalOrders(void)
 {
    int total = 0;
-   for (int i = 0; i < m_index; i++){
+   for (int i = 0; i < m_num_packs; i++){
       total += m_pack[i].size();
    }//end for - traverse packs in the pack vector
    return total;
@@ -256,7 +256,7 @@ int PackVector::GetNumTotalOrders(void)
 */
 bool PackVector::hasOrder(int ticket)
 {
-   for (int i = 0; i < m_index; i++){
+   for (int i = 0; i < m_num_packs; i++){
       for (int j = 0; j < m_pack[i].size(); j++){
          if (m_pack[i].GetTicket(j) == ticket)  return true;
       }//end for - pack
@@ -268,7 +268,7 @@ bool PackVector::hasOrder(int ticket)
 void PackVector::sort(void)
 { 
    Pack *current = new Pack;
-   for (int i = 1; i < m_index; i++){
+   for (int i = 1; i < m_num_packs; i++){
       int j = i;
       current = m_pack[i];
       while ( (j > 0) && (m_pack[j-1].size() < current.size())){
