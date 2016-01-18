@@ -14,7 +14,6 @@
 #define  MAX_NUM_TRIALS 3
 #define  INITIAL_PACK_VEC_SIZE 128
 #define  NUM_VALID_PARITIES 28
-#define  LOG_ACTIONS TRUE
 
 extern int ex_magic_no = 11111;  ///< Magic number of target orders
 extern int ex_tp1 = 10;          ///< Take profit pips 1
@@ -29,6 +28,7 @@ class Pack{
    int m_total_profit_pip; ///< Total profit of the pack in pips
    int m_target_profit_pip; ///< Target profit of the pack in pips
    int m_id;                 ///< unique id of the pack
+   int GetOrderTarget(void);
 public:
    /*!Default constructor*/
    Pack(): counter(0), m_total_profit_pip(0), m_target_profit_pip(0), m_id(0){ArrayResize(imTicketarray,0,MAX_ORDERS_IN_A_PACK);ArrayResize(smSymbols,0,MAX_ORDERS_IN_A_PACK);}
@@ -45,6 +45,29 @@ public:
    bool ShouldBeClosed(void);
    int GetId(void){return m_id;}
 };
+
+/*!\return The target profit pips of the order */
+int Pack::GetOrderTarget(void)
+{
+   int target = 0;
+   int tp;
+   tp = StringToInteger(StringSubstr(OrderComment(), 0, 1));
+   switch(tp){
+      case 1:
+         target = ex_tp1;
+         break;
+      case 2:
+         target = ex_tp2;
+         break;
+      case 3:
+         target = ex_tp3;
+         break;
+      default:
+         Alert("Gecersiz comment...");
+         target = -1;      
+   }//end switch case - take profit
+   return target;
+}
 
 /*! Checks whether given position can be inserted to the package or not
    \param cTicket Ticket number 
@@ -108,7 +131,7 @@ void Pack::Display(void){
 */
 bool Pack::ClosePack(void)
 {
-   if (LOG_ACTIONS)  FileWrite(alfh, "************Pack::ClosePack called*********************");
+   //if (LOG_ACTIONS)  FileWrite(alfh, "************Pack::ClosePack called*********************");
    for(int i = counter-1; i >=0 ; --i){
       int ticket = imTicketarray[i];
    	if (!OrderSelect(ticket, SELECT_BY_TICKET, MODE_TRADES)) {
@@ -116,7 +139,7 @@ bool Pack::ClosePack(void)
 		   return false;
 	   }
 	   int optype = OrderType();
-	   if (LOG_ACTIONS)  FileWrite(alfh, "Ticket#: ", ticket, optype==OP_BUY?", Buy":(optype==OP_SELL?", Sell":", Other optype"));
+	   //if (LOG_ACTIONS)  FileWrite(alfh, "Ticket#: ", ticket, optype==OP_BUY?", Buy":(optype==OP_SELL?", Sell":", Other optype"));
 	   int k = 0;
 	   double close_price;
 	   for (k = 0; k < MAX_NUM_TRIALS; ++k) {
@@ -124,7 +147,7 @@ bool Pack::ClosePack(void)
    			close_price = MarketInfo(smSymbols[i], MODE_BID);
    		else
    			close_price = MarketInfo(smSymbols[i], MODE_ASK);
-   		if (LOG_ACTIONS)  FileWrite(alfh, "Order lots: ", OrderLots(), ", Close price: ", close_price);
+   		//if (LOG_ACTIONS)  FileWrite(alfh, "Order lots: ", OrderLots(), ", Close price: ", close_price);
    		if (OrderClose(ticket, OrderLots(), close_price, 10))
    			break;
    		RefreshRates();
@@ -224,19 +247,19 @@ Pack *PackVector::operator[](int index)
 */
 bool PackVector::remove(int index)
 {
-   if (LOG_ACTIONS)  {
-      FileWrite(alfh, "*********PackVector::remove called************");
-      FileWrite(alfh, "Vector size before closing the pack: ", ArraySize(m_pack));
-   } 
+   //if (LOG_ACTIONS)  {
+   //   FileWrite(alfh, "*********PackVector::remove called************");
+   //   FileWrite(alfh, "Vector size before closing the pack: ", ArraySize(m_pack));
+   //} 
     
    if(!m_pack[index].ClosePack()) return false; 
    sort();     // closed pack will be shifted to the end of the array. No chance that there will be 2 packs with 0 elements
    --m_num_packs; 
    if (ArrayResize(m_pack, m_num_packs) == -1) return false; // delete 
-   if (LOG_ACTIONS)  {
-      FileWrite(alfh, "Pack", index, " closed successfully");
-      FileWrite(alfh, "Vector size after closing the pack: ", ArraySize(m_pack), "\n");
-   }   
+   //if (mcs_log_actions)  {
+   //   FileWrite(alfh, "Pack", index, " closed successfully");
+   //    FileWrite(alfh, "Vector size after closing the pack: ", ArraySize(m_pack), "\n");
+   //}   
    return true;
 }
 
@@ -289,12 +312,12 @@ static const string mcs_log_filename; ///< Log file name
 static int ms_lfh;  ///< Log file handle
 static const string mcs_log_actions_filename; ///< Second log file to keep track of what's going on
 static int ms_alfh; ///< Second log file handle
-int GetOrderTarget(void);
 bool IsValidParity(string parity);
 bool IsValidComment(string comment);
 bool IsValidMagic(void);
 void Log(string comment_log);
 int GetNumValidOrders(); 
+void Organize(void);
 
 public:
 void Init(void);
@@ -309,36 +332,12 @@ const string Reorganizer::mcs_valid_parities[NUM_VALID_PARITIES] = {
             "EURCHF","EURGBP","EURJPY","EURNZD","EURUSD",
             "GBPAUD","GBPCAD","GBPCHF","GBPJPY","GBPNZD",
             "GBPUSD","NZDCAD","NZDCHF","NZDJPY","NZDUSD",
-            "USDCAD","USDCHF","USDJPY" };
-            
+            "USDCAD","USDCHF","USDJPY" };            
 const string Reorganizer::mcs_log_filename = "PackReorganizeLog.csv";
 const string Reorganizer::mcs_log_actions_filename = "LogActions.txt";
 int Reorganizer::ms_alfh = INVALID_HANDLE;
 int Reorganizer::ms_lfh = INVALID_HANDLE; 
             
-/*!\return The target profit pips of the order. The order must be selected with OrderSelect() function before calling this function*/
-int Reorganizer::GetOrderTarget(void)
-{
-   int target = 0;
-   int tp;
-   tp = StringToInteger(StringSubstr(OrderComment(), 0, 1));
-   switch(tp){
-      case 1:
-         target = ex_tp1;
-         break;
-      case 2:
-         target = ex_tp2;
-         break;
-      case 3:
-         target = ex_tp3;
-         break;
-      default:
-         Alert("Gecersiz comment...");
-         target = -1;      
-   }//end switch case - take profit
-   return target;
-}
-
 /*! ArrayBsearch function not used because it returns 
     index of a found element. If the wanted value isn't found, the function returns the index of an element nearest in value.
    \param parity Parity of the order to check
@@ -346,7 +345,7 @@ int Reorganizer::GetOrderTarget(void)
 bool Reorganizer::IsValidParity(string parity)
 {
    for(int i = 0; i < NUM_VALID_PARITIES; i++)
-      if(valid_parities[i] == parity)  return true;
+      if(mcs_valid_parities[i] == parity)  return true;
    return false;
 }
 
@@ -391,14 +390,14 @@ void Reorganizer::Log(string comment_log)
    TimeToStruct(TimeCurrent(), str);
    string date = IntegerToString(str.year) + "/" + IntegerToString(str.mon) + "/" + IntegerToString(str.day);
    string time = IntegerToString(str.hour) + ":" + IntegerToString(str.min) + ":" + IntegerToString(str.sec);
-   string sym, open, comment, magic, ticket, order_profit, order_target, pack_profit, pack_target;
+   string sym, open, comment, magic, ticket, pack_profit, pack_target;
    double p;
    int pack_id;
    
-   for (int i = 0; i < pvec.size(); i++){
-      for (int j = 0; j < pvec[i].size(); j++){ 
-         if (!OrderSelect(pvec[i].GetTicket(j), SELECT_BY_TICKET)){
-            Alert(pvec[i].GetTicket(j), " orderi secilemedi");
+   for (int i = 0; i < m_pvec.size(); i++){
+      for (int j = 0; j < m_pvec[i].size(); j++){ 
+         if (!OrderSelect(m_pvec[i].GetTicket(j), SELECT_BY_TICKET)){
+            Alert(m_pvec[i].GetTicket(j), " orderi secilemedi");
          }
          sym = OrderSymbol(); 
          open = DoubleToString(OrderOpenPrice());
@@ -406,12 +405,10 @@ void Reorganizer::Log(string comment_log)
          magic = IntegerToString(OrderMagicNumber());
          ticket = IntegerToString(OrderTicket());
          p = NormalizeDouble(OrderProfit(), Digits);
-         order_profit = DoubleToString(p);
-         order_target = IntegerToString(GetOrderTarget());
-         pack_id = pvec[i].GetId();
-         pack_profit = DoubleToString(pvec[i].GetProfit());
-         pack_target = IntegerToString(pvec[i].GetTargetProfit());
-         FileWrite(lfh, date,  
+         pack_id = m_pvec[i].GetId();
+         pack_profit = DoubleToString(m_pvec[i].GetProfit());
+         pack_target = IntegerToString(m_pvec[i].GetTargetProfit());
+         FileWrite(ms_lfh, date,  
                   time,
                   comment_log,  
                   IntegerToString(i),
@@ -419,9 +416,7 @@ void Reorganizer::Log(string comment_log)
                   open, 
                   comment, 
                   magic, 
-                  ticket, 
-                  order_profit,  
-                  order_target, 
+                  ticket,                      
                   pack_id,
                   pack_profit, 
                   pack_target);                            
@@ -445,8 +440,8 @@ int Reorganizer::GetNumValidOrders()
       magic = OrderMagicNumber();
       sym = OrderSymbol();
       if (/*LOG_ACTIONS*/FALSE){
-         FileWrite(alfh, "Order", k, " comment = ", comment, ", magic# = ", magic, ", symbol = ", sym);
-         FileWrite(alfh, "Valid Comment = ",  IsValidComment(comment)?"Yes":"No", ", Valid Magic = ", IsValidMagic()?"Yes":"No",
+         FileWrite(ms_alfh, "Order", k, " comment = ", comment, ", magic# = ", magic, ", symbol = ", sym);
+         FileWrite(ms_alfh, "Valid Comment = ",  IsValidComment(comment)?"Yes":"No", ", Valid Magic = ", IsValidMagic()?"Yes":"No",
                         ", Valid Parity = ", IsValidParity(sym)?"Yes":"No");
       }
       if (IsValidComment(comment) && IsValidMagic() && IsValidParity(sym))   ++total;      
@@ -454,12 +449,12 @@ int Reorganizer::GetNumValidOrders()
    return total; 
 }
 
-/*! Main function to re-organize packages. Traverses all open orders and 
+/*! Organize packages. Traverses all open orders and 
 places target orders whose magic number matches the desired magic number ex_magic_no
 to the first available package. Creates a new package if all packages are full or 
 none is available and places the order to that new package.
 */
-void Reorganizer::Run(void)
+void Reorganizer::Organize(void)
 {
    
    for (int k = OrdersTotal() - 1; k >= 0; --k) {
@@ -470,48 +465,69 @@ void Reorganizer::Run(void)
       
       if (!IsValidComment(OrderComment())) continue;
       if (!IsValidMagic()) continue;
-      if (pvec.hasOrder(OrderTicket())) continue; // order is already in a pack
+      if (m_pvec.hasOrder(OrderTicket())) continue; // order is already in a pack
       int i;
-      pvec.sort();
-      for(i = 0; i < pvec.size(); i++){         
-         if (pvec[i].isInsertable(OrderTicket())){             
-            pvec[i].Add(OrderTicket());
+      m_pvec.sort();
+      for(i = 0; i < m_pvec.size(); i++){         
+         if (m_pvec[i].isInsertable(OrderTicket())){             
+            m_pvec[i].Add(OrderTicket());
             break;
          }
       }//end for - traverse orders in the pack   
-      if (i==pvec.size()) {
-         pvec.push_back(new Pack);
-         pvec[i].Add(OrderTicket());
+      if (i==m_pvec.size()) {
+         m_pvec.push_back(new Pack);
+         m_pvec[i].Add(OrderTicket());
       }
    }// end for - traverse all orders 
-   pvec.sort(); // sort at the end again
-   /*
-   // Now we packed all orders. Let's check their profits 
-   for(int i = 0; i < pvec.size(); i++){
-      if (pvec[i].GetProfit() == pvec[i].GetTargetProfit()) pvec[i].ClosePack();
-   }//end for - traverse packs in the pack vector
-   */
+   m_pvec.sort(); // sort at the end again
+}
+
+void Reorganizer::Run(void)
+{
+   int total_valid_orders = -1;
+   int total_orders_in_vec = -1;
+   total_valid_orders = GetNumValidOrders();
+   total_orders_in_vec = m_pvec.GetNumTotalOrders();
+   
+   if (total_valid_orders != total_orders_in_vec){    // a new order 
+      Log("BeforeNewOrder");
+      FileWrite(ms_alfh, "\nNew Order! Num Valid Orders = ", total_valid_orders, " Num orders in pack vector = ", total_orders_in_vec, "\n");
+      Organize(); 
+      Log("AfterNewOrder");       
+   }else{
+      //if (LOG_ACTIONS)  FileWrite(alfh, "Num Valid Orders = ", total_valid_orders, " Num orders in pack vector = ", total_orders_in_vec);
+   }
+   
+   int i = 0;
+   while (i < m_pvec.size()){
+      if (m_pvec[i].ShouldBeClosed()){
+         Log("BeforePackClose"); 
+         FileWrite(ms_alfh,"Close Pack", i, ". Pack id = ", m_pvec[i].GetId());
+         m_pvec.remove(i);
+         Log("AfterPackClose");
+      }else{
+         ++i;
+      }
+   }//end while
 }
 
 void Reorganizer::Init(void)
 {
-
    ms_lfh = FileOpen(mcs_log_filename, FILE_WRITE | FILE_CSV); 
    if (ms_lfh == INVALID_HANDLE){
       Alert(mcs_log_filename, " cannot be opened. The error code = ", GetLastError());
       ExpertRemove();
    }
    FileWrite(ms_lfh, "Date", "Time", "Comment", "PackIndex", "OrderSymbol", "OrderOpenPrice", "OrderComment", "OrderMagicNumber", 
-                  "OrderTicketNumber", "OrderProfitPips", "OrderTargetProfitPips","PackID", 
-                  "PackProfitPips", "PackTargetProfitPips");   
-   if (LOG_ACTIONS){
-      ms_alfh = FileOpen(mcs_log_actions_filename, FILE_WRITE | FILE_TXT);
-      if (ms_alfh == INVALID_HANDLE){
-         Alert(mcs_log_actions_filename, " cannot be opened. The error code = ", GetLastError());
-         ExpertRemove();
-      }
-      FileWrite(ms_alfh, "Here we go!\n");
+                  "OrderTicketNumber", "PackID", "PackProfitPips", "PackTargetProfitPips");   
+
+   ms_alfh = FileOpen(mcs_log_actions_filename, FILE_WRITE | FILE_TXT);
+   if (ms_alfh == INVALID_HANDLE){
+      Alert(mcs_log_actions_filename, " cannot be opened. The error code = ", GetLastError());
+      ExpertRemove();
    }
+   FileWrite(ms_alfh, "Here we go!\n");
+   
    Run();
    Log("FirstOrganization");
    //t_Log();
@@ -524,229 +540,6 @@ void Reorganizer::Stop(void)
 }
 
 // ------------------------------------------ GLOBAL FUNCTIONS AND VARIABLES ------------------------------------------------- //
-
-PackVector pvec;     ///< Global PackVector class object
-int num_orders = 0;  ///< Number of orders
-
-/*!\return The target profit pips of the order. The order must be selected with OrderSelect() function before calling this function*/
-int GetOrderTarget(void)
-{
-   int target = 0;
-   int tp;
-   tp = StringToInteger(StringSubstr(OrderComment(), 0, 1));
-   switch(tp){
-      case 1:
-         target = ex_tp1;
-         break;
-      case 2:
-         target = ex_tp2;
-         break;
-      case 3:
-         target = ex_tp3;
-         break;
-      default:
-         Alert("Gecersiz comment...");
-         target = -1;      
-   }//end switch case - take profit
-   return target;
-}
-
-/// All possible parities
-const string valid_parities[NUM_VALID_PARITIES] = {
-            "AUDCAD","AUDCHF","AUDJPY","AUDNZD","AUDUSD",
-            "CADCHF","CADJPY","CHFJPY","EURAUD","EURCAD",
-            "EURCHF","EURGBP","EURJPY","EURNZD","EURUSD",
-            "GBPAUD","GBPCAD","GBPCHF","GBPJPY","GBPNZD",
-            "GBPUSD","NZDCAD","NZDCHF","NZDJPY","NZDUSD",
-            "USDCAD","USDCHF","USDJPY" }; 
-            
-/*! ArrayBsearch function not used because it returns 
-    index of a found element. If the wanted value isn't found, the function returns the index of an element nearest in value.
-   \param parity Parity of the order to check
-   \return True if the parity is valid; false otherwise*/
-bool IsValidParity(string parity)
-{
-   for(int i = 0; i < NUM_VALID_PARITIES; i++)
-      if(valid_parities[i] == parity)  return true;
-   return false;
-}
-
-/*!Check the comment format. **TODO**: This function can be implemented with regular expressions but MQL does not support
-   regular expressions. In C++ regex can be used. Here is the python implementation
-   
-   import re
-   def comment_match(comment):
-       pattern = '[1-3]+_[0-9]{5}'
-       m = re.match(pattern,comment)
-       if m == None:
-           return False
-       else:
-           return m.group(0) == comment
-
-   \param comment Order comment
-   \return Return true if comment starts with 1, 2, 3 followed by _ and then followed by a 5 digit number. False otherwise
-*/
-bool IsValidComment(string comment)
-{
-   if (StringSubstr(comment, 1, 1) != "_")  return false;
-   int first_num = StringToInteger(StringSubstr(comment, 0, 1));
-   if (first_num != 1 && first_num != 2 && first_num != 3)  return false;
-   int magic_num = StringToInteger(StringSubstr(comment, 2));
-   if ( magic_num < 0 || magic_num > 99999) return false;
-   return true;
-}
-
-/*! Check magic number format. The order must be selected before calling this function 
-   \return True if magic number in the comment matches the order magic number; false otherwise
-*/
-bool IsValidMagic(void)
-{ 
-   int magic_comment = StringToInteger(StringSubstr(OrderComment(), 2));    
-   return (magic_comment == OrderMagicNumber()) && (magic_comment == ex_magic_no);
-}
-
-/*! A global function to re-organize packages. Traverses all open orders and 
-places target orders whose magic number matches the desired magic number ex_magic_no
-to the first available package. Creates a new package if all packages are full or 
-none is available and places the order to that new package.
-*/
-void PackReorganize(void)
-{
-   
-   for (int k = OrdersTotal() - 1; k >= 0; --k) {
-      if (!OrderSelect(k, SELECT_BY_POS, MODE_TRADES)) {
-      	Alert("Emir secilemedi... Hata kodu : ", GetLastError());
-      	continue;
-      }
-      
-      if (!IsValidComment(OrderComment())) continue;
-      if (!IsValidMagic()) continue;
-      if (pvec.hasOrder(OrderTicket())) continue; // order is already in a pack
-      int i;
-      pvec.sort();
-      for(i = 0; i < pvec.size(); i++){         
-         if (pvec[i].isInsertable(OrderTicket())){             
-            pvec[i].Add(OrderTicket());
-            break;
-         }
-      }//end for - traverse orders in the pack   
-      if (i==pvec.size()) {
-         pvec.push_back(new Pack);
-         pvec[i].Add(OrderTicket());
-      }
-   }// end for - traverse all orders 
-   pvec.sort(); // sort at the end again
-   /*
-   // Now we packed all orders. Let's check their profits 
-   for(int i = 0; i < pvec.size(); i++){
-      if (pvec[i].GetProfit() == pvec[i].GetTargetProfit()) pvec[i].ClosePack();
-   }//end for - traverse packs in the pack vector
-   */
-}
-
-/// Log file name
-string log_file_name = "PackReorganizeLog.csv";
-/// Log file handle
-int lfh = INVALID_HANDLE;
-/// second log file to keep track of what's going on
-string log_actions = "LogActions.txt";
-int alfh = INVALID_HANDLE;
-
-/*! Log packs to a tab delimetd csv file */
-void Log(string comment_log)
-{
-   MqlDateTime str; 
-   TimeToStruct(TimeCurrent(), str);
-   string date = IntegerToString(str.year) + "/" + IntegerToString(str.mon) + "/" + IntegerToString(str.day);
-   string time = IntegerToString(str.hour) + ":" + IntegerToString(str.min) + ":" + IntegerToString(str.sec);
-   string sym, open, comment, magic, ticket, order_profit, order_target, pack_profit, pack_target;
-   double p;
-   int pack_id;
-   
-   for (int i = 0; i < pvec.size(); i++){
-      for (int j = 0; j < pvec[i].size(); j++){ 
-         if (!OrderSelect(pvec[i].GetTicket(j), SELECT_BY_TICKET)){
-            Alert(pvec[i].GetTicket(j), " orderi secilemedi");
-         }
-         sym = OrderSymbol(); 
-         open = DoubleToString(OrderOpenPrice());
-         comment = OrderComment();
-         magic = IntegerToString(OrderMagicNumber());
-         ticket = IntegerToString(OrderTicket());
-         p = NormalizeDouble(OrderProfit(), Digits);
-         order_profit = DoubleToString(p);
-         order_target = IntegerToString(GetOrderTarget());
-         pack_id = pvec[i].GetId();
-         pack_profit = DoubleToString(pvec[i].GetProfit());
-         pack_target = IntegerToString(pvec[i].GetTargetProfit());
-         FileWrite(lfh, date,  
-                  time,
-                  comment_log,  
-                  IntegerToString(i),
-                  sym, 
-                  open, 
-                  comment, 
-                  magic, 
-                  ticket, 
-                  order_profit,  
-                  order_target, 
-                  pack_id,
-                  pack_profit, 
-                  pack_target);                            
-      }//end for - traverse orders in the pack
-   }//end for - traverse pack vector
-}
-
-/*!Test Log function. Create a random pack vector and check the log file manually*/
-void t_Log()
-{
-   int i = 0;
-   //Alert("Pvec size = ", pvec.size());
-   //Alert("Total order# = ", OrdersTotal());
-   for (int k = OrdersTotal() - 1; k >= 0; --k) {
-      //Alert("Order will be selected");
-      if (!OrderSelect(k, SELECT_BY_POS, MODE_TRADES)) {
-      	Alert("Emir secilemedi... Hata kodu : ", GetLastError());
-      	continue;
-      }
-      //Alert("Order selected");
-      pvec.push_back(new Pack);
-      //Alert("New Pack pushed");
-      if (pvec[i].Add(OrderTicket()) == -1){
-         Alert("Couldn't add new order");   
-      }else{
-         Alert("Added order ticket = ", OrderTicket());
-      }
-      //Alert("New order added");  
-      if(k != 0 && k%3 == 0)  ++i;
-   }//end for - traverse all orders
-   Alert("Pvec size = ", pvec.size());
-   Log("TestLog");   
-}
-/*!\return The number of valid orders*/
-int GetNumValidOrders()
-{
-   //if (LOG_ACTIONS)  FileWrite(alfh, "*********GetNumValidOrders called************");   
-   int total = 0;
-   string comment, sym;
-   int magic;
-   for (int k = OrdersTotal() - 1; k >= 0; --k) {
-      if (!OrderSelect(k, SELECT_BY_POS, MODE_TRADES)) {
-      	Alert("Emir secilemedi... Hata kodu : ", GetLastError());
-      	continue;
-      }
-      comment = OrderComment();
-      magic = OrderMagicNumber();
-      sym = OrderSymbol();
-      if (/*LOG_ACTIONS*/FALSE){
-         FileWrite(alfh, "Order", k, " comment = ", comment, ", magic# = ", magic, ", symbol = ", sym);
-         FileWrite(alfh, "Valid Comment = ",  IsValidComment(comment)?"Yes":"No", ", Valid Magic = ", IsValidMagic()?"Yes":"No",
-                        ", Valid Parity = ", IsValidParity(sym)?"Yes":"No");
-      }
-      if (IsValidComment(comment) && IsValidMagic() && IsValidParity(sym))   ++total;      
-   }//end for
-   return total; 
-}
 
 Reorganizer reorg_engine;  ///< Reorganizer object
 
@@ -768,38 +561,5 @@ void OnDeinit(const int reason)
 /*! Expert tick function */                                          
 void OnTick()
 {
-   int total_valid_orders = -1;
-   int total_orders_in_vec = -1;
-   total_valid_orders = GetNumValidOrders();
-   total_orders_in_vec = pvec.GetNumTotalOrders();
-   
-   if (total_valid_orders != total_orders_in_vec){    // a new order 
-      Log("BeforeNewOrder");
-      if (LOG_ACTIONS)  FileWrite(alfh, "\nNew Order! Num Valid Orders = ", total_valid_orders, " Num orders in pack vector = ", total_orders_in_vec, "\n");
-      PackReorganize(); // create the vector for the first time
-      Log("AfterNewOrder");            // log it       
-   }else{
-      //if (LOG_ACTIONS)  FileWrite(alfh, "Num Valid Orders = ", total_valid_orders, " Num orders in pack vector = ", total_orders_in_vec);
-   }
-   
-   int i = 0;
-   while (i < pvec.size()){
-      if (pvec[i].ShouldBeClosed()){
-         Log("BeforePackClose"); 
-         if (LOG_ACTIONS)  FileWrite(alfh,"Close Pack", i, ". Pack id = ", pvec[i].GetId());
-         pvec.remove(i);
-         Log("AfterPackClose");
-      }else{
-         ++i;
-      }
-   }//end while
-   /*
-   for(int i = 0; i < pvec.size(); i++){  // check profit
-      if (pvec[i].ShouldBeClosed()){ 
-         if (LOG_ACTIONS)  FileWrite(alfh,"Close Pack", i, ". Pack id = ", pvec[i].GetId());
-         pvec.remove(i);
-         Log();
-      }
-   }//end for - traverse packs in the pack vector
-   */
+  reorg_engine.Run();
 }

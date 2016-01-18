@@ -1,6 +1,6 @@
 MY PROJECT -*- mode: org -*-
 
-* TODO Define a new class that represents an engine: PackOrganizerEngine
+* DONE Define a new class that represents an engine: PackOrganizerEngine
 * TODO Hocanin yaptigi fixleri yap [1/4]
 - [ ] Bazi uye fonksiyonlar private olacak
 - [X] Fonksiyon argumanlarinda pointer olmayanlarin constlugu bir anlam ifade etmiyor. Onlari duzelt
