@@ -528,7 +528,7 @@ void Reorganizer::Init(void)
    }
    FileWrite(ms_alfh, "Here we go!\n");
    
-   Run();
+   Organize();
    Log("FirstOrganization");
    //t_Log();
 }
