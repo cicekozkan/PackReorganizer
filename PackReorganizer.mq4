@@ -196,7 +196,7 @@ int Pack::GetTargetProfit(void)
 /*!   \return True if the sum of the profits of orders in the package is equal to or greater than the target. False otherwise */ 
 bool Pack::ShouldBeClosed(void)
 {
-   return GetProfit() >= GetTargetProfit();
+   return (GetProfit() >= GetTargetProfit()) || (GetProfit() <= (-1)*(GetTargetProfit()/2));
 }
 
 // ------------------------------------------- PACK VECTOR CLASS --------------------------------------------------------- //

@@ -5,9 +5,9 @@ MY PROJECT -*- mode: org -*-
 - [X] Fonksiyon argumanlarinda pointer olmayanlarin constlugu bir anlam ifade etmiyor. Onlari duzelt
 - [ ] Global variablelar static member variable olacak
 - [ ] Arrayler fixed size olacak
-* TODO Paketlere stop loss koy
 * TODO Belirli araliklarda random paket ac
 * TODO Uyarilari elimine et. Ozellikle target profitin doubledan int e cast edilmeden atanmasina bak. Orada bug olabilir
+* DONE Paketlere stop loss koy
 * DONE Define a new class that represents an engine: PackOrganizerEngine
 * DONE Paketlerin miktarini butun paketler ayni miktar dolar olacak sekilde belirle <2016-01-13 Wed>
 * DONE Pack ve PackVector siniflarinin dokumantasyonunu tamamla. 08/11/2015
