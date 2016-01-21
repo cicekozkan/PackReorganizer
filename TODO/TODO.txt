@@ -1,9 +1,9 @@
 MY PROJECT -*- mode: org -*-
 
-* TODO Hocanin yaptigi fixleri yap [1/4]
-- [ ] Bazi uye fonksiyonlar private olacak
+* TODO Hocanin yaptigi fixleri yap [3/4]
+- [X] Bazi uye fonksiyonlar private olacak
 - [X] Fonksiyon argumanlarinda pointer olmayanlarin constlugu bir anlam ifade etmiyor. Onlari duzelt
-- [ ] Global variablelar static member variable olacak
+- [X] Global variablelar static member variable olacak
 - [ ] Arrayler fixed size olacak
 * TODO Belirli araliklarda random paket ac
 * TODO Uyarilari elimine et. Ozellikle target profitin doubledan int e cast edilmeden atanmasina bak. Orada bug olabilir
