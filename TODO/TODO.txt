@@ -1,12 +1,12 @@
 MY PROJECT -*- mode: org -*-
 
-* TODO Hocanin yaptigi fixleri yap [3/4]
+* DONE Belirli araliklarda random paket ac
+* DONE Uyarilari elimine et. Ozellikle target profitin doubledan int e cast edilmeden atanmasina bak. Orada bug olabilir
+* DONE Hocanin yaptigi fixleri yap [4/4]
 - [X] Bazi uye fonksiyonlar private olacak
 - [X] Fonksiyon argumanlarinda pointer olmayanlarin constlugu bir anlam ifade etmiyor. Onlari duzelt
 - [X] Global variablelar static member variable olacak
-- [ ] Arrayler fixed size olacak
-* TODO Belirli araliklarda random paket ac
-* TODO Uyarilari elimine et. Ozellikle target profitin doubledan int e cast edilmeden atanmasina bak. Orada bug olabilir
+- [X] Arrayler fixed size olacak
 * DONE Paketlere stop loss koy
 * DONE Define a new class that represents an engine: PackOrganizerEngine
 * DONE Paketlerin miktarini butun paketler ayni miktar dolar olacak sekilde belirle <2016-01-13 Wed>

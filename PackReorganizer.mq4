@@ -16,22 +16,22 @@
 #define  NUM_VALID_PARITIES 28
 
 extern int ex_magic_no = 11111;  ///< Magic number of target orders
-extern int ex_tp1 = 10;          ///< Take profit pips 1
-extern int ex_tp2 = 20;          ///< Take profit pips 2
-extern int ex_tp3 = 30;          ///< Take profit pips 3
+extern double ex_tp1 = 10.0;          ///< Take profit pips 1
+extern double ex_tp2 = 20.0;          ///< Take profit pips 2
+extern double ex_tp3 = 30.0;          ///< Take profit pips 3
 
 /*! Pack class; represents a package */
 class Pack{
-   int m_orders [] ;  ///< An array to hold ticket number of orders of the package
-   string m_symbols [] ;   ///< An array to hold symbols of orders of the package
+   int m_tickets [MAX_ORDERS_IN_A_PACK] ;  ///< An array to hold ticket number of orders of the package
+   string m_symbols [MAX_ORDERS_IN_A_PACK] ;   ///< An array to hold symbols of orders of the package
    int m_num_orders ;           ///< Number of orders in the package
-   int m_total_profit_pip; ///< Total profit of the pack in pips
-   int m_target_profit_pip; ///< Target profit of the pack in pips
+   double m_total_profit_pip; ///< Total profit of the pack in pips
+   double m_target_profit_pip; ///< Target profit of the pack in pips
    int m_id;                 ///< unique id of the pack
-   int GetOrderTarget(void);
+   double GetOrderTarget(void);
 public:
    /*!Default constructor*/
-   Pack(): m_num_orders(0), m_total_profit_pip(0), m_target_profit_pip(0), m_id(0){ArrayResize(m_orders,0,MAX_ORDERS_IN_A_PACK);ArrayResize(m_symbols,0,MAX_ORDERS_IN_A_PACK);}
+   Pack(): m_num_orders(0), m_total_profit_pip(0.0), m_target_profit_pip(0.0), m_id(0){}
    bool IsInsertable(int);
    /*!\return Number of positions*/
    int Size(){return m_num_orders;}
@@ -39,19 +39,19 @@ public:
    void Display(void);
    bool ClosePack(void);
    double GetProfit(void);  
-   int GetTargetProfit(void); 
+   double GetTargetProfit(void); 
    /*!\return Indexed order's ticket number*/
-   int GetTicket(int index){return m_orders[index];}
+   int GetTicket(int index){return m_tickets[index];}
    bool ShouldBeClosed(void);
    int GetId(void){return m_id;}
 };
 
 /*!\return The target profit pips of the order */
-int Pack::GetOrderTarget(void)
+double Pack::GetOrderTarget(void)
 {
-   int target = 0;
+   double target = 0;
    int tp;
-   tp = StringToInteger(StringSubstr(OrderComment(), 0, 1));
+   tp = (int)StringToInteger(StringSubstr(OrderComment(), 0, 1));
    switch(tp){
       case 1:
          target = ex_tp1;
@@ -73,50 +73,48 @@ int Pack::GetOrderTarget(void)
    \param cTicket Ticket number 
    \return True if the position with given ticket number can be inserted to the package; false otherwise 
 */
-bool Pack::IsInsertable(int cTicket){
-   int ticketArraySize = ArraySize(m_orders);
-   
-   if(ticketArraySize == MAX_ORDERS_IN_A_PACK)
+bool Pack::IsInsertable(int ticket){
+  
+   if(m_num_orders == MAX_ORDERS_IN_A_PACK)
       return false;
-   if(ticketArraySize == 0)
+   if(m_num_orders == 0)
       return true;
 
-   if(!(OrderSelect(cTicket, SELECT_BY_TICKET)==true)){
+   if(!(OrderSelect(ticket, SELECT_BY_TICKET)==true)){
       Print("Order Secilemedi , Hata Kodu :  ",GetLastError());
       return false;
    }
    string newSymbol = OrderSymbol();
-   Print(cTicket, " Nolu Order secildi , OrderSymbol : ", newSymbol);
    
-   for(int i = 0; i < ticketArraySize ; ++i)
-   {
+   for(int i = 0; i < m_num_orders ; ++i){
       if(StringSubstr(newSymbol,0,3) == StringSubstr(m_symbols[i],0,3) || StringSubstr(newSymbol,0,3) == StringSubstr(m_symbols[i],3,3) ||
          StringSubstr(newSymbol,3,3) == StringSubstr(m_symbols[i],0,3) || StringSubstr(newSymbol,3,3) == StringSubstr(m_symbols[i],3,3))
          return false;  
    }
- return true;  
+   return true;  
 }
 
 /*!Adds given position to the pack
    \param cTicket Ticket number
    \return If successful: number of positions; otherwise -1
 */
-int Pack::Add(int cTicket){
+int Pack::Add(int ticket){
 
-   if(!(OrderSelect(cTicket, SELECT_BY_TICKET)==true)){
+   if(!(OrderSelect(ticket, SELECT_BY_TICKET)==true)){
       Print("Order Secilemedi , Hata Kodu :  ",GetLastError());
       return -1;
    }
-   int lastArraySize = ArraySize(m_orders);
-   ArrayResize(m_orders, lastArraySize + 1);
-   ArrayResize(m_symbols, lastArraySize + 1);   // they should always have same size!
-   m_orders[m_num_orders] = cTicket;      
+   //int lastArraySize = ArraySize(m_tickets);
+   //ArrayResize(m_tickets, lastArraySize + 1);
+   //ArrayResize(m_symbols, lastArraySize + 1);   // they should always have same size!
+   m_tickets[m_num_orders] = ticket;      
    m_symbols[m_num_orders] = OrderSymbol();
    m_num_orders++;
    m_total_profit_pip = GetProfit();
    m_target_profit_pip = GetTargetProfit();
    m_id += OrderTicket();
-   return lastArraySize + 1;
+   //return lastArraySize + 1;
+   return m_num_orders;
 }
 
 /*!Display the package*/
@@ -133,7 +131,7 @@ bool Pack::ClosePack(void)
 {
    //if (LOG_ACTIONS)  FileWrite(alfh, "************Pack::ClosePack called*********************");
    for(int i = m_num_orders-1; i >=0 ; --i){
-      int ticket = m_orders[i];
+      int ticket = m_tickets[i];
    	if (!OrderSelect(ticket, SELECT_BY_TICKET, MODE_TRADES)) {
 		   Alert(ticket, " No'lu emir secilemedi... Hata kodu : ", GetLastError());
 		   return false;
@@ -141,7 +139,7 @@ bool Pack::ClosePack(void)
 	   int optype = OrderType();
 	   //if (LOG_ACTIONS)  FileWrite(alfh, "Ticket#: ", ticket, optype==OP_BUY?", Buy":(optype==OP_SELL?", Sell":", Other optype"));
 	   int k = 0;
-	   double close_price;
+	   double close_price = -99.0;
 	   for (k = 0; k < MAX_NUM_TRIALS; ++k) {
    		if (optype == OP_BUY)
    			close_price = MarketInfo(m_symbols[i], MODE_BID);
@@ -169,8 +167,8 @@ double Pack::GetProfit(void)
 {
    double total = 0.;
    for (int i=0; i < m_num_orders; ++i){
-      if (!OrderSelect(m_orders[i], SELECT_BY_TICKET, MODE_TRADES)) {
-		   Alert(m_orders[i], " No'lu emir secilemedi... Hata kodu : ", GetLastError());
+      if (!OrderSelect(m_tickets[i], SELECT_BY_TICKET, MODE_TRADES)) {
+		   Alert(m_tickets[i], " No'lu emir secilemedi... Hata kodu : ", GetLastError());
 		   return -1;
 	   }
 	   total += NormalizeDouble(OrderProfit(), Digits);
@@ -179,13 +177,13 @@ double Pack::GetProfit(void)
 }
 
 /*!\return The target profit pips of the package */
-int Pack::GetTargetProfit(void)
+double Pack::GetTargetProfit(void)
 {
    int tp = -1;
-   int total = 0;
+   double total = 0;
    for (int i=0; i < m_num_orders; ++i){
-      if (!OrderSelect(m_orders[i], SELECT_BY_TICKET, MODE_TRADES)) {
-		   Alert(m_orders[i], " No'lu emir secilemedi... Hata kodu : ", GetLastError());
+      if (!OrderSelect(m_tickets[i], SELECT_BY_TICKET, MODE_TRADES)) {
+		   Alert(m_tickets[i], " No'lu emir secilemedi... Hata kodu : ", GetLastError());
 		   return -1;
 	   }
       total += GetOrderTarget();
@@ -196,7 +194,7 @@ int Pack::GetTargetProfit(void)
 /*!   \return True if the sum of the profits of orders in the package is equal to or greater than the target. False otherwise */ 
 bool Pack::ShouldBeClosed(void)
 {
-   return (GetProfit() >= GetTargetProfit()) || (GetProfit() <= (-2)*(GetTargetProfit()));
+   return (GetProfit() >= GetTargetProfit()) || (GetProfit() <= (-3)*(GetTargetProfit()));
 }
 
 // ------------------------------------------- PACK VECTOR CLASS --------------------------------------------------------- //
@@ -312,13 +310,19 @@ class Reorganizer{
    static int ms_lfh;  ///< Log file handle
    static const string mcs_log_actions_filename; ///< Second log file to keep track of what's going on
    static int ms_alfh; ///< Second log file handle
+   double m_parity_lots[NUM_VALID_PARITIES]; ///< Lots of other parities with the same USD lot amount 
+   double m_time_ms;
    bool IsValidParity(string parity);
    bool IsValidComment(string comment);
    bool IsValidMagic(void);
    void Log(string comment_log);
    int GetNumValidOrders(); 
    void Organize(void);
+   void FindParityLots(double target_usd_lot);
+   int TimeToOpenNewOrders(void);
+   void OpenRandomOrders(double target_usd_lot, int num_orders_to_open, string comment, int magic_no);
 public:
+   Reorganizer(){m_time_ms = TimeLocal();}
    void Init(void);
    void Run(void);
    void Stop(void);
@@ -365,9 +369,9 @@ bool Reorganizer::IsValidParity(string parity)
 bool Reorganizer::IsValidComment(string comment)
 {
    if (StringSubstr(comment, 1, 1) != "_")  return false;
-   int first_num = StringToInteger(StringSubstr(comment, 0, 1));
+   int first_num = (int)StringToInteger(StringSubstr(comment, 0, 1));
    if (first_num != 1 && first_num != 2 && first_num != 3)  return false;
-   int magic_num = StringToInteger(StringSubstr(comment, 2));
+   int magic_num = (int)StringToInteger(StringSubstr(comment, 2));
    if ( magic_num < 0 || magic_num > 99999) return false;
    return true;
 }
@@ -377,7 +381,7 @@ bool Reorganizer::IsValidComment(string comment)
 */
 bool Reorganizer::IsValidMagic(void)
 { 
-   int magic_comment = StringToInteger(StringSubstr(OrderComment(), 2));    
+   int magic_comment = (int)StringToInteger(StringSubstr(OrderComment(), 2));    
    return (magic_comment == OrderMagicNumber()) && (magic_comment == ex_magic_no);
 }
 
@@ -405,7 +409,7 @@ void Reorganizer::Log(string comment_log)
          p = NormalizeDouble(OrderProfit(), Digits);
          pack_id = m_pvec[i].GetId();
          pack_profit = DoubleToString(m_pvec[i].GetProfit());
-         pack_target = IntegerToString(m_pvec[i].GetTargetProfit());
+         pack_target = DoubleToString(m_pvec[i].GetTargetProfit());
          FileWrite(ms_lfh, date,  
                   time,
                   comment_log,  
@@ -480,14 +484,68 @@ void Reorganizer::Organize(void)
    m_pvec.Sort(); // sort at the end again
 }
 
+/*! Calculate the lot amount of other parities other than USD that is equivalent to the same USD lot */
+void Reorganizer::FindParityLots(double target_usd_lot)
+{
+   for(int i = 0; i < NUM_VALID_PARITIES; i++){
+      if(i < 5)
+         m_parity_lots[i] = target_usd_lot / NormalizeDouble(MarketInfo("AUDUSD", MODE_ASK), 2);      
+      else if(i < 7)
+         m_parity_lots[i] = target_usd_lot / NormalizeDouble(MarketInfo("USDCAD", MODE_ASK), 2);      
+      else if(i < 8)
+         m_parity_lots[i] = target_usd_lot / NormalizeDouble(MarketInfo("USDCHF", MODE_ASK), 2);       
+      else if(i < 15)
+         m_parity_lots[i] = target_usd_lot / NormalizeDouble(MarketInfo("EURUSD", MODE_ASK), 2);         
+      else if(i < 21)
+         m_parity_lots[i] = target_usd_lot / NormalizeDouble(MarketInfo("GBPUSD", MODE_ASK), 2);         
+      else if(i < 25)
+         m_parity_lots[i] = target_usd_lot / NormalizeDouble(MarketInfo("NZDUSD", MODE_ASK), 2);         
+      else 
+         m_parity_lots[i] = target_usd_lot;
+   }
+}
+int Reorganizer::TimeToOpenNewOrders(void)
+{
+   double interval_ms = 7200; // open new orders in every 2 hours
+   double current_time_ms = TimeLocal();
+   int is_it = 0;
+    
+   if((current_time_ms - m_time_ms) > interval_ms){
+      m_time_ms = current_time_ms;
+      is_it = 1;
+   }
+   return is_it;
+}
+void Reorganizer::OpenRandomOrders(double target_usd_lot, int num_orders_to_open, string comment, int magic_no)
+{
+   int ticket = -1;
+   int k = 0;
+   int max_num_trials = 5;   
+   
+   FindParityLots(target_usd_lot);
+   
+   for (int i=0; i < num_orders_to_open; i++){
+      int rand_index = MathRand() % NUM_VALID_PARITIES;
+      string sym = mcs_valid_parities[rand_index];
+      double lot_to_open = m_parity_lots[rand_index];
+      int buy = MathRand()%2;
+      for (k = 0; k < max_num_trials; k++){
+         ticket = OrderSend(sym, buy, lot_to_open, MarketInfo(sym, buy?MODE_BID:MODE_ASK), 10, 0, 0, comment, magic_no);
+         if (ticket != -1) break;
+      }//end max trials
+      if (k == max_num_trials)   Print(sym, " Paritesinde emir acilamadi. Hata kodu = ", GetLastError());
+   } 
+}
+
 void Reorganizer::Run(void)
 {
    int total_valid_orders = -1;
    int total_orders_in_vec = -1;
+   int num_min_orders = 10;
    total_valid_orders = GetNumValidOrders();
    total_orders_in_vec = m_pvec.GetNumTotalOrders();
    
-   if (total_valid_orders != total_orders_in_vec){    // a new order 
+   if (total_valid_orders > total_orders_in_vec){    // a new order 
       Log("BeforeNewOrder");
       FileWrite(ms_alfh, "\nNew Order! Num Valid Orders = ", total_valid_orders, " Num orders in pack vector = ", total_orders_in_vec, "\n");
       Organize(); 
@@ -507,6 +565,20 @@ void Reorganizer::Run(void)
          ++i;
       }
    }//end while
+      
+   if(TimeToOpenNewOrders()){
+      FileWrite(ms_alfh,"Open new orders");
+      string magic, comment;
+      int num_orders = 1;
+      double lot = 0.1;
+      magic = IntegerToString(ex_magic_no);
+      comment = StringConcatenate("1_", magic);
+      OpenRandomOrders(lot, num_orders, comment, ex_magic_no);
+      comment = StringConcatenate("2_", magic);
+      OpenRandomOrders(lot, num_orders, comment, ex_magic_no);
+      comment = StringConcatenate("3_", magic);
+      OpenRandomOrders(lot, num_orders, comment, ex_magic_no);
+   }//end open random orders   
 }
 
 void Reorganizer::Init(void)
