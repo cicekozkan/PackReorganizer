@@ -22,26 +22,26 @@ extern int ex_tp3 = 30;          ///< Take profit pips 3
 
 /*! Pack class; represents a package */
 class Pack{
-   int imTicketarray [] ;  ///< An array to hold ticket number of orders of the package
-   string smSymbols [] ;   ///< An array to hold symbols of orders of the package
-   int counter ;           ///< Number of orders in the package
+   int m_orders [] ;  ///< An array to hold ticket number of orders of the package
+   string m_symbols [] ;   ///< An array to hold symbols of orders of the package
+   int m_num_orders ;           ///< Number of orders in the package
    int m_total_profit_pip; ///< Total profit of the pack in pips
    int m_target_profit_pip; ///< Target profit of the pack in pips
    int m_id;                 ///< unique id of the pack
    int GetOrderTarget(void);
 public:
    /*!Default constructor*/
-   Pack(): counter(0), m_total_profit_pip(0), m_target_profit_pip(0), m_id(0){ArrayResize(imTicketarray,0,MAX_ORDERS_IN_A_PACK);ArrayResize(smSymbols,0,MAX_ORDERS_IN_A_PACK);}
-   bool isInsertable(int);
+   Pack(): m_num_orders(0), m_total_profit_pip(0), m_target_profit_pip(0), m_id(0){ArrayResize(m_orders,0,MAX_ORDERS_IN_A_PACK);ArrayResize(m_symbols,0,MAX_ORDERS_IN_A_PACK);}
+   bool IsInsertable(int);
    /*!\return Number of positions*/
-   int size(){return counter;}
+   int Size(){return m_num_orders;}
    int Add(int);
    void Display(void);
    bool ClosePack(void);
    double GetProfit(void);  
    int GetTargetProfit(void); 
    /*!\return Indexed order's ticket number*/
-   int GetTicket(int index){return imTicketarray[index];}
+   int GetTicket(int index){return m_orders[index];}
    bool ShouldBeClosed(void);
    int GetId(void){return m_id;}
 };
@@ -73,8 +73,8 @@ int Pack::GetOrderTarget(void)
    \param cTicket Ticket number 
    \return True if the position with given ticket number can be inserted to the package; false otherwise 
 */
-bool Pack::isInsertable(int cTicket){
-   int ticketArraySize = ArraySize(imTicketarray);
+bool Pack::IsInsertable(int cTicket){
+   int ticketArraySize = ArraySize(m_orders);
    
    if(ticketArraySize == MAX_ORDERS_IN_A_PACK)
       return false;
@@ -90,8 +90,8 @@ bool Pack::isInsertable(int cTicket){
    
    for(int i = 0; i < ticketArraySize ; ++i)
    {
-      if(StringSubstr(newSymbol,0,3) == StringSubstr(smSymbols[i],0,3) || StringSubstr(newSymbol,0,3) == StringSubstr(smSymbols[i],3,3) ||
-         StringSubstr(newSymbol,3,3) == StringSubstr(smSymbols[i],0,3) || StringSubstr(newSymbol,3,3) == StringSubstr(smSymbols[i],3,3))
+      if(StringSubstr(newSymbol,0,3) == StringSubstr(m_symbols[i],0,3) || StringSubstr(newSymbol,0,3) == StringSubstr(m_symbols[i],3,3) ||
+         StringSubstr(newSymbol,3,3) == StringSubstr(m_symbols[i],0,3) || StringSubstr(newSymbol,3,3) == StringSubstr(m_symbols[i],3,3))
          return false;  
    }
  return true;  
@@ -107,12 +107,12 @@ int Pack::Add(int cTicket){
       Print("Order Secilemedi , Hata Kodu :  ",GetLastError());
       return -1;
    }
-   int lastArraySize = ArraySize(imTicketarray);
-   ArrayResize(imTicketarray, lastArraySize + 1);
-   ArrayResize(smSymbols, lastArraySize + 1);   // they should always have same size!
-   imTicketarray[counter] = cTicket;      
-   smSymbols[counter] = OrderSymbol();
-   counter++;
+   int lastArraySize = ArraySize(m_orders);
+   ArrayResize(m_orders, lastArraySize + 1);
+   ArrayResize(m_symbols, lastArraySize + 1);   // they should always have same size!
+   m_orders[m_num_orders] = cTicket;      
+   m_symbols[m_num_orders] = OrderSymbol();
+   m_num_orders++;
    m_total_profit_pip = GetProfit();
    m_target_profit_pip = GetTargetProfit();
    m_id += OrderTicket();
@@ -122,8 +122,8 @@ int Pack::Add(int cTicket){
 /*!Display the package*/
 void Pack::Display(void){
 
-   for(int i =0 ; i < ArraySize(smSymbols);++i )
-   Print(smSymbols[i]);
+   for(int i =0 ; i < ArraySize(m_symbols);++i )
+   Print(m_symbols[i]);
 }
 
 /*!Close all the positions in the package
@@ -132,8 +132,8 @@ void Pack::Display(void){
 bool Pack::ClosePack(void)
 {
    //if (LOG_ACTIONS)  FileWrite(alfh, "************Pack::ClosePack called*********************");
-   for(int i = counter-1; i >=0 ; --i){
-      int ticket = imTicketarray[i];
+   for(int i = m_num_orders-1; i >=0 ; --i){
+      int ticket = m_orders[i];
    	if (!OrderSelect(ticket, SELECT_BY_TICKET, MODE_TRADES)) {
 		   Alert(ticket, " No'lu emir secilemedi... Hata kodu : ", GetLastError());
 		   return false;
@@ -144,9 +144,9 @@ bool Pack::ClosePack(void)
 	   double close_price;
 	   for (k = 0; k < MAX_NUM_TRIALS; ++k) {
    		if (optype == OP_BUY)
-   			close_price = MarketInfo(smSymbols[i], MODE_BID);
+   			close_price = MarketInfo(m_symbols[i], MODE_BID);
    		else
-   			close_price = MarketInfo(smSymbols[i], MODE_ASK);
+   			close_price = MarketInfo(m_symbols[i], MODE_ASK);
    		//if (LOG_ACTIONS)  FileWrite(alfh, "Order lots: ", OrderLots(), ", Close price: ", close_price);
    		if (OrderClose(ticket, OrderLots(), close_price, 10))
    			break;
@@ -156,11 +156,11 @@ bool Pack::ClosePack(void)
          Alert(ticket, " No'lu emir kapatilamadi. Close price: ", close_price, ".... Hata kodu : ", GetLastError());
          return false;
       }
-   }// end for counter
+   }// end for m_num_orders
       
    m_target_profit_pip = 0; // update these variables (doubt we will need a closed pack's variables; just do it to be safe)
    m_total_profit_pip = 0;
-   counter = 0;
+   m_num_orders = 0;
    return true;
 }
 
@@ -168,9 +168,9 @@ bool Pack::ClosePack(void)
 double Pack::GetProfit(void)
 {
    double total = 0.;
-   for (int i=0; i < counter; ++i){
-      if (!OrderSelect(imTicketarray[i], SELECT_BY_TICKET, MODE_TRADES)) {
-		   Alert(imTicketarray[i], " No'lu emir secilemedi... Hata kodu : ", GetLastError());
+   for (int i=0; i < m_num_orders; ++i){
+      if (!OrderSelect(m_orders[i], SELECT_BY_TICKET, MODE_TRADES)) {
+		   Alert(m_orders[i], " No'lu emir secilemedi... Hata kodu : ", GetLastError());
 		   return -1;
 	   }
 	   total += NormalizeDouble(OrderProfit(), Digits);
@@ -183,9 +183,9 @@ int Pack::GetTargetProfit(void)
 {
    int tp = -1;
    int total = 0;
-   for (int i=0; i < counter; ++i){
-      if (!OrderSelect(imTicketarray[i], SELECT_BY_TICKET, MODE_TRADES)) {
-		   Alert(imTicketarray[i], " No'lu emir secilemedi... Hata kodu : ", GetLastError());
+   for (int i=0; i < m_num_orders; ++i){
+      if (!OrderSelect(m_orders[i], SELECT_BY_TICKET, MODE_TRADES)) {
+		   Alert(m_orders[i], " No'lu emir secilemedi... Hata kodu : ", GetLastError());
 		   return -1;
 	   }
       total += GetOrderTarget();
@@ -210,12 +210,12 @@ public:
    PackVector() : m_num_packs(0) {ArrayResize(m_pack, m_num_packs, 1024);}
    bool PackVector::push_back(Pack *value);
    Pack *operator[](int index);
-   bool remove(int index);
+   bool Remove(int index);
    /*!\return Number of packages inside the vector*/
-   int size(void){return m_num_packs;}
+   int Size(void){return m_num_packs;}
    int GetNumTotalOrders(void);
-   bool hasOrder(int);
-   void sort(void);
+   bool HasOrder(int);
+   void Sort(void);
 };
 
 /*! Mmics C++ vector<> push_back method. Places given pack 
@@ -245,15 +245,15 @@ Pack *PackVector::operator[](int index)
    \param index Index of the package in the vector
    \return true if successful, false otherwise.
 */
-bool PackVector::remove(int index)
+bool PackVector::Remove(int index)
 {
    //if (LOG_ACTIONS)  {
-   //   FileWrite(alfh, "*********PackVector::remove called************");
+   //   FileWrite(alfh, "*********PackVector::Remove called************");
    //   FileWrite(alfh, "Vector size before closing the pack: ", ArraySize(m_pack));
    //} 
     
    if(!m_pack[index].ClosePack()) return false; 
-   sort();     // closed pack will be shifted to the end of the array. No chance that there will be 2 packs with 0 elements
+   Sort();     // closed pack will be shifted to the end of the array. No chance that there will be 2 packs with 0 elements
    --m_num_packs; 
    if (ArrayResize(m_pack, m_num_packs) == -1) return false; // delete 
    //if (mcs_log_actions)  {
@@ -269,7 +269,7 @@ int PackVector::GetNumTotalOrders(void)
 {
    int total = 0;
    for (int i = 0; i < m_num_packs; i++){
-      total += m_pack[i].size();
+      total += m_pack[i].Size();
    }//end for - traverse packs in the pack vector
    return total;
 }
@@ -277,10 +277,10 @@ int PackVector::GetNumTotalOrders(void)
 /*!\param ticket: Ticket number of the order
    \return True if the order with given ticket number is in the pack vector; false otherwise
 */
-bool PackVector::hasOrder(int ticket)
+bool PackVector::HasOrder(int ticket)
 {
    for (int i = 0; i < m_num_packs; i++){
-      for (int j = 0; j < m_pack[i].size(); j++){
+      for (int j = 0; j < m_pack[i].Size(); j++){
          if (m_pack[i].GetTicket(j) == ticket)  return true;
       }//end for - pack
    }//end for - pack vector
@@ -288,13 +288,13 @@ bool PackVector::hasOrder(int ticket)
 }
 
 /*!Sort packs in descending direction. Inserting sort algorithm is selected since it is adaptive. Any other ideas? */
-void PackVector::sort(void)
+void PackVector::Sort(void)
 { 
    Pack *current = new Pack;
    for (int i = 1; i < m_num_packs; i++){
       int j = i;
       current = m_pack[i];
-      while ( (j > 0) && (m_pack[j-1].size() < current.size())){
+      while ( (j > 0) && (m_pack[j-1].Size() < current.Size())){
          m_pack[j] = m_pack[j-1];
          --j;
       }//end while
@@ -305,25 +305,23 @@ void PackVector::sort(void)
 // ---------------------------------------------------- REORGANIZER CLASS ---------------------------------------------------------- //
 /*! Reorganizer class. The results unknown in case multiple objects instantiated */
 class Reorganizer{
-static const string mcs_valid_parities[NUM_VALID_PARITIES]; ///< All possible parities
-PackVector  m_pvec; ///< Engine will hold packs in this pack vector 
-int m_num_ordes; ///< Number of orders
-static const string mcs_log_filename; ///< Log file name
-static int ms_lfh;  ///< Log file handle
-static const string mcs_log_actions_filename; ///< Second log file to keep track of what's going on
-static int ms_alfh; ///< Second log file handle
-bool IsValidParity(string parity);
-bool IsValidComment(string comment);
-bool IsValidMagic(void);
-void Log(string comment_log);
-int GetNumValidOrders(); 
-void Organize(void);
-
+   static const string mcs_valid_parities[NUM_VALID_PARITIES]; ///< All possible parities
+   PackVector  m_pvec; ///< Engine will hold packs in this pack vector 
+   int m_num_ordes; ///< Number of orders
+   static const string mcs_log_filename; ///< Log file name
+   static int ms_lfh;  ///< Log file handle
+   static const string mcs_log_actions_filename; ///< Second log file to keep track of what's going on
+   static int ms_alfh; ///< Second log file handle
+   bool IsValidParity(string parity);
+   bool IsValidComment(string comment);
+   bool IsValidMagic(void);
+   void Log(string comment_log);
+   int GetNumValidOrders(); 
+   void Organize(void);
 public:
-void Init(void);
-void Run(void);
-void Stop(void);
-
+   void Init(void);
+   void Run(void);
+   void Stop(void);
 };
 
 const string Reorganizer::mcs_valid_parities[NUM_VALID_PARITIES] = {
@@ -394,8 +392,8 @@ void Reorganizer::Log(string comment_log)
    double p;
    int pack_id;
    
-   for (int i = 0; i < m_pvec.size(); i++){
-      for (int j = 0; j < m_pvec[i].size(); j++){ 
+   for (int i = 0; i < m_pvec.Size(); i++){
+      for (int j = 0; j < m_pvec[i].Size(); j++){ 
          if (!OrderSelect(m_pvec[i].GetTicket(j), SELECT_BY_TICKET)){
             Alert(m_pvec[i].GetTicket(j), " orderi secilemedi");
          }
@@ -465,21 +463,21 @@ void Reorganizer::Organize(void)
       
       if (!IsValidComment(OrderComment())) continue;
       if (!IsValidMagic()) continue;
-      if (m_pvec.hasOrder(OrderTicket())) continue; // order is already in a pack
+      if (m_pvec.HasOrder(OrderTicket())) continue; // order is already in a pack
       int i;
-      m_pvec.sort();
-      for(i = 0; i < m_pvec.size(); i++){         
-         if (m_pvec[i].isInsertable(OrderTicket())){             
+      m_pvec.Sort();
+      for(i = 0; i < m_pvec.Size(); i++){         
+         if (m_pvec[i].IsInsertable(OrderTicket())){             
             m_pvec[i].Add(OrderTicket());
             break;
          }
       }//end for - traverse orders in the pack   
-      if (i==m_pvec.size()) {
+      if (i==m_pvec.Size()) {
          m_pvec.push_back(new Pack);
          m_pvec[i].Add(OrderTicket());
       }
    }// end for - traverse all orders 
-   m_pvec.sort(); // sort at the end again
+   m_pvec.Sort(); // sort at the end again
 }
 
 void Reorganizer::Run(void)
@@ -499,11 +497,11 @@ void Reorganizer::Run(void)
    }
    
    int i = 0;
-   while (i < m_pvec.size()){
+   while (i < m_pvec.Size()){
       if (m_pvec[i].ShouldBeClosed()){
          Log("BeforePackClose"); 
          FileWrite(ms_alfh,"Close Pack", i, ". Pack id = ", m_pvec[i].GetId());
-         m_pvec.remove(i);
+         m_pvec.Remove(i);
          Log("AfterPackClose");
       }else{
          ++i;
