@@ -312,6 +312,8 @@ class Reorganizer{
    static int ms_alfh; ///< Second log file handle
    double m_parity_lots[NUM_VALID_PARITIES]; ///< Lots of other parities with the same USD lot amount 
    double m_time_ms;
+   double m_total_profit;
+   MqlDateTime m_start_date;
    bool IsValidParity(string parity);
    bool IsValidComment(string comment);
    bool IsValidMagic(void);
@@ -322,7 +324,7 @@ class Reorganizer{
    int TimeToOpenNewOrders(void);
    void OpenRandomOrders(double target_usd_lot, int num_orders_to_open, string comment, int magic_no);
 public:
-   Reorganizer(){m_time_ms = TimeLocal();}
+   Reorganizer():m_total_profit(0){m_time_ms = TimeLocal();}
    void Init(void);
    void Run(void);
    void Stop(void);
@@ -557,6 +559,7 @@ void Reorganizer::Run(void)
    int i = 0;
    while (i < m_pvec.Size()){
       if (m_pvec[i].ShouldBeClosed()){
+         m_total_profit += m_pvec[i].GetProfit();
          Log("BeforePackClose"); 
          FileWrite(ms_alfh,"Close Pack", i, ". Pack id = ", m_pvec[i].GetId());
          m_pvec.Remove(i);
@@ -583,6 +586,8 @@ void Reorganizer::Run(void)
 
 void Reorganizer::Init(void)
 {
+   TimeToStruct(TimeCurrent(), m_start_date);   
+   
    ms_lfh = FileOpen(mcs_log_filename, FILE_WRITE | FILE_CSV); 
    if (ms_lfh == INVALID_HANDLE){
       Alert(mcs_log_filename, " cannot be opened. The error code = ", GetLastError());
@@ -605,8 +610,18 @@ void Reorganizer::Init(void)
 
 void Reorganizer::Stop(void)
 {
-   if(ms_lfh != INVALID_HANDLE)   FileClose(ms_lfh);
-   if(ms_alfh != INVALID_HANDLE)   FileClose(ms_alfh);
+   MqlDateTime end_date;
+   TimeToStruct(TimeCurrent(), end_date);
+   
+   FileWrite(ms_alfh, "Total profit between " + IntegerToString(m_start_date.day) + "/" + IntegerToString(m_start_date.mon) + 
+            "/" + IntegerToString(m_start_date.year) + " " + IntegerToString(m_start_date.hour) + ":" + 
+            IntegerToString(m_start_date.min) + ":" + IntegerToString(m_start_date.sec) + " and " + 
+            IntegerToString(end_date.day) + "/" + IntegerToString(end_date.mon) + 
+            "/" + IntegerToString(end_date.year) + " " + IntegerToString(end_date.hour) + ":" + 
+            IntegerToString(end_date.min) + ":" + IntegerToString(end_date.sec) + " = " + DoubleToString(m_total_profit));             
+   
+  FileClose(ms_lfh);
+  FileClose(ms_alfh);
 }
 
 // ------------------------------------------ GLOBAL FUNCTIONS AND VARIABLES ------------------------------------------------- //
