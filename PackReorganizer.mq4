@@ -16,9 +16,9 @@
 #define  NUM_VALID_PARITIES 28
 
 extern int ex_magic_no = 11111;  ///< Magic number of target orders
-extern double ex_tp1 = 10.0;          ///< Take profit pips 1
-extern double ex_tp2 = 20.0;          ///< Take profit pips 2
-extern double ex_tp3 = 30.0;          ///< Take profit pips 3
+extern double ex_tp1 = 10.0;          ///< Take profit 1
+extern double ex_tp2 = 20.0;          ///< Take profit 2
+extern double ex_tp3 = 30.0;          ///< Take profit 3
 
 /*! Pack class; represents a package */
 class Pack{
@@ -508,7 +508,7 @@ void Reorganizer::FindParityLots(double target_usd_lot)
 }
 int Reorganizer::TimeToOpenNewOrders(void)
 {
-   double interval_ms = 7200; // open new orders in every 2 hours
+   double interval_ms = 14400; // open new orders in every 2 hours
    double current_time_ms = TimeLocal();
    int is_it = 0;
     
@@ -573,7 +573,7 @@ void Reorganizer::Run(void)
       FileWrite(ms_alfh,"Open new orders");
       string magic, comment;
       int num_orders = 1;
-      double lot = 0.1;
+      double lot = 1.0;
       magic = IntegerToString(ex_magic_no);
       comment = StringConcatenate("1_", magic);
       OpenRandomOrders(lot, num_orders, comment, ex_magic_no);
@@ -594,7 +594,7 @@ void Reorganizer::Init(void)
       ExpertRemove();
    }
    FileWrite(ms_lfh, "Date", "Time", "Comment", "PackIndex", "OrderSymbol", "OrderOpenPrice", "OrderComment", "OrderMagicNumber", 
-                  "OrderTicketNumber", "PackID", "PackProfitPips", "PackTargetProfitPips");   
+                  "OrderTicketNumber", "PackID", "PackProfit", "PackTargetProfit");   
 
    ms_alfh = FileOpen(mcs_log_actions_filename, FILE_WRITE | FILE_TXT);
    if (ms_alfh == INVALID_HANDLE){
