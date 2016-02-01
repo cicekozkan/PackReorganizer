@@ -19,6 +19,7 @@ extern int ex_magic_no = 11111;  ///< Magic number of target orders
 extern double ex_tp1 = 10.0;          ///< Take profit 1
 extern double ex_tp2 = 20.0;          ///< Take profit 2
 extern double ex_tp3 = 30.0;          ///< Take profit 3
+extern double ex_lot = 1.0;           ///< Amount of order to open
 
 /*! Pack class; represents a package */
 class Pack{
@@ -573,14 +574,13 @@ void Reorganizer::Run(void)
       FileWrite(ms_alfh,"Open new orders");
       string magic, comment;
       int num_orders = 1;
-      double lot = 1.0;
       magic = IntegerToString(ex_magic_no);
       comment = StringConcatenate("1_", magic);
-      OpenRandomOrders(lot, num_orders, comment, ex_magic_no);
+      OpenRandomOrders(ex_lot, num_orders, comment, ex_magic_no);
       comment = StringConcatenate("2_", magic);
-      OpenRandomOrders(lot, num_orders, comment, ex_magic_no);
+      OpenRandomOrders(ex_lot, num_orders, comment, ex_magic_no);
       comment = StringConcatenate("3_", magic);
-      OpenRandomOrders(lot, num_orders, comment, ex_magic_no);
+      OpenRandomOrders(ex_lot, num_orders, comment, ex_magic_no);
    }//end open random orders   
 }
 
