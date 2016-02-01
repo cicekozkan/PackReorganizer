@@ -12,7 +12,7 @@
 
 #define  MAX_ORDERS_IN_A_PACK 4
 #define  MAX_NUM_TRIALS 3
-#define  INITIAL_PACK_VEC_SIZE 128
+#define  PACK_VEC_SIZE 512
 #define  NUM_VALID_PARITIES 28
 
 extern int ex_magic_no = 11111;  ///< Magic number of target orders
@@ -201,12 +201,12 @@ bool Pack::ShouldBeClosed(void)
 // ------------------------------------------- PACK VECTOR CLASS --------------------------------------------------------- //
 /*! Represents a pack vector */
 class PackVector {
-   Pack *m_pack[];    ///< An array of Packs
+   Pack *m_packs[PACK_VEC_SIZE];    ///< An array of Packs
    int m_num_packs;      ///< Number of packs in the vector
    int m_total_orders;  ///< Number of total orders in the pack vector
 public:
    /*! Default constructor. Initializes the vector with 0 Packs*/
-   PackVector() : m_num_packs(0) {ArrayResize(m_pack, m_num_packs, 1024);}
+   PackVector() : m_num_packs(0) {}
    bool PackVector::push_back(Pack *value);
    Pack *operator[](int index);
    bool Remove(int index);
@@ -224,10 +224,8 @@ public:
 */
 bool PackVector::push_back(Pack *value)
 {
-   static int capacity = INITIAL_PACK_VEC_SIZE;
-   if (m_num_packs + 1 == capacity) capacity *= 2;
-   if (ArrayResize(m_pack, m_num_packs + 1, capacity) == -1 ) return false; 
-   else m_pack[m_num_packs++] = value;
+   if(m_num_packs == PACK_VEC_SIZE)  return false;
+   else m_packs[m_num_packs++] = value;   
    return true;
 }
 
@@ -237,7 +235,7 @@ bool PackVector::push_back(Pack *value)
 */
 Pack *PackVector::operator[](int index)
 {
-   return m_pack[index];
+   return m_packs[index];
 }
 
 /*!Close all orders in indexed package, remove it from the vector, shrink package and update size
@@ -251,10 +249,10 @@ bool PackVector::Remove(int index)
    //   FileWrite(alfh, "Vector size before closing the pack: ", ArraySize(m_pack));
    //} 
     
-   if(!m_pack[index].ClosePack()) return false; 
+   if(!m_packs[index].ClosePack()) return false; 
    Sort();     // closed pack will be shifted to the end of the array. No chance that there will be 2 packs with 0 elements
    --m_num_packs; 
-   if (ArrayResize(m_pack, m_num_packs) == -1) return false; // delete 
+   //if (ArrayResize(m_pack, m_num_packs) == -1) return false; // delete 
    //if (mcs_log_actions)  {
    //   FileWrite(alfh, "Pack", index, " closed successfully");
    //    FileWrite(alfh, "Vector size after closing the pack: ", ArraySize(m_pack), "\n");
@@ -268,7 +266,7 @@ int PackVector::GetNumTotalOrders(void)
 {
    int total = 0;
    for (int i = 0; i < m_num_packs; i++){
-      total += m_pack[i].Size();
+      total += m_packs[i].Size();
    }//end for - traverse packs in the pack vector
    return total;
 }
@@ -279,8 +277,8 @@ int PackVector::GetNumTotalOrders(void)
 bool PackVector::HasOrder(int ticket)
 {
    for (int i = 0; i < m_num_packs; i++){
-      for (int j = 0; j < m_pack[i].Size(); j++){
-         if (m_pack[i].GetTicket(j) == ticket)  return true;
+      for (int j = 0; j < m_packs[i].Size(); j++){
+         if (m_packs[i].GetTicket(j) == ticket)  return true;
       }//end for - pack
    }//end for - pack vector
    return false;
@@ -292,12 +290,12 @@ void PackVector::Sort(void)
    Pack *current = new Pack;
    for (int i = 1; i < m_num_packs; i++){
       int j = i;
-      current = m_pack[i];
-      while ( (j > 0) && (m_pack[j-1].Size() < current.Size())){
-         m_pack[j] = m_pack[j-1];
+      current = m_packs[i];
+      while ( (j > 0) && (m_packs[j-1].Size() < current.Size())){
+         m_packs[j] = m_packs[j-1];
          --j;
       }//end while
-      m_pack[j] = current;              
+      m_packs[j] = current;              
    }//end for - pack traverse in vector
 }
 
@@ -545,6 +543,7 @@ void Reorganizer::Run(void)
    int total_valid_orders = -1;
    int total_orders_in_vec = -1;
    int num_min_orders = 10;
+   static int i_attemp = 0;
    total_valid_orders = GetNumValidOrders();
    total_orders_in_vec = m_pvec.GetNumTotalOrders();
    
@@ -560,11 +559,18 @@ void Reorganizer::Run(void)
    int i = 0;
    while (i < m_pvec.Size()){
       if (m_pvec[i].ShouldBeClosed()){
-         m_total_profit += m_pvec[i].GetProfit();
-         Log("BeforePackClose"); 
-         FileWrite(ms_alfh,"Close Pack", i, ". Pack id = ", m_pvec[i].GetId());
-         m_pvec.Remove(i);
-         Log("AfterPackClose");
+         Log("BeforePackClose");
+         if(m_pvec.Remove(i)){
+           // pack removed successfully            
+           m_total_profit += m_pvec[i].GetProfit();
+           FileWrite(ms_alfh,"Close Pack", i, ". Pack id = ", m_pvec[i].GetId());
+           Log("AfterPackClose");
+           i_attemp = 0;
+         }else{
+           // couldn't remove pack. Run method will try to remove it again
+           FileWrite(ms_alfh,"Try closing pack", i, " for the ", i_attemp, "th time. Pack id = ", m_pvec[i].GetId());
+           ++i_attemp; 
+         }         
       }else{
          ++i;
       }

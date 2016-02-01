@@ -1,6 +1,7 @@
 MY PROJECT -*- mode: org -*-
 
-* TODO Engine calistigi sure elde edilen toplam kari yaz
+* DONE Emir kapatilamadiginda toplam kari guncelleme
+* DONE Engine calistigi sure elde edilen toplam kari yaz
 * DONE Belirli araliklarda random paket ac
 * DONE Uyarilari elimine et. Ozellikle target profitin doubledan int e cast edilmeden atanmasina bak. Orada bug olabilir
 * DONE Hocanin yaptigi fixleri yap [4/4]
