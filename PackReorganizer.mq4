@@ -505,6 +505,8 @@ void Reorganizer::FindParityLots(double target_usd_lot)
          m_parity_lots[i] = target_usd_lot;
    }
 }
+
+/*! \return True if pre-determined time has elapsed to open new orders */
 int Reorganizer::TimeToOpenNewOrders(void)
 {
    double interval_ms = 14400; // open new orders in every 2 hours
@@ -517,6 +519,13 @@ int Reorganizer::TimeToOpenNewOrders(void)
    }
    return is_it;
 }
+
+/*! Open random orders 
+  \param target_usd_lot: The same amount of order will be opened 
+  \param num_orders_to_open: Number of orders
+  \param comment: Order comment
+  \param magic_no: Order magic no
+*/
 void Reorganizer::OpenRandomOrders(double target_usd_lot, int num_orders_to_open, string comment, int magic_no)
 {
    int ticket = -1;
@@ -544,6 +553,7 @@ void Reorganizer::Run(void)
    int total_orders_in_vec = -1;
    int num_min_orders = 10;
    static int i_attemp = 0;
+   int num_max_attemp = 10;
    total_valid_orders = GetNumValidOrders();
    total_orders_in_vec = m_pvec.GetNumTotalOrders();
    
@@ -570,10 +580,15 @@ void Reorganizer::Run(void)
            // couldn't remove pack. Run method will try to remove it again
            FileWrite(ms_alfh,"Try closing pack", i, " for the ", i_attemp, "th time. Pack id = ", m_pvec[i].GetId());
            ++i_attemp; 
+           if(i_attemp == num_max_attemp){
+             // to avoid infinite loop try num_max_attemp times
+             // move to next order. The Run method will try again in the next tick
+             ++i;
+           }
          }         
       }else{
          ++i;
-      }
+      }//end if ShouldBeClosed
    }//end while
       
    if(TimeToOpenNewOrders()){

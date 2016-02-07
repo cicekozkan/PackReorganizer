@@ -1,3 +1,6 @@
 MY PROJECT -*- mode: org -*-
 
-* TODO Engine keeps adding the profit in case of an error happened during close.
+* DONE Engine keeps adding the profit in case of an error happened during close.
+Add profit only if the order is successfully closed
+* DONE Orders cannot be closed after the last change. Fix it and stop trying to close in case of an error
+For now move to the next order after a certain times of trying. Run method will try closing the same order in the next tick

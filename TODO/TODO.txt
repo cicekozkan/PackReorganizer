@@ -1,5 +1,12 @@
 MY PROJECT -*- mode: org -*-
 
+* TODO Try opening orders not randomly
+Open each parity in short and long at the same time. Within a pre-determined intervals make sure all parities have
+two orders: buy and sell. When a pack is closed check each order in the pack; if they are losing that's ok; don't touch the other.
+However, if they are winning it means the other direction looses. Close that also and open only in the winning direction. The intervals
+must be short enough (try one hour first) to open new orders. If the price of a closed order is >= previous price don't open orders in the other 
+direction. However if it is < than previous price open a new order in the other direction. Except a price is always winning in one direction we will 
+have 56 orders in total.
 * DONE Emir kapatilamadiginda toplam kari guncelleme
 * DONE Engine calistigi sure elde edilen toplam kari yaz
 * DONE Belirli araliklarda random paket ac
