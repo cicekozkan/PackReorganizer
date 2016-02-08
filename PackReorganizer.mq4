@@ -326,11 +326,11 @@ class Reorganizer{
    int OpenRandomOrders(void);
    int OpenOrdersNecatiMethod(void);
 public:
-   Reorganizer():m_total_profit(0), m_order_open_method(0){
+   Reorganizer():m_total_profit(0), m_order_open_method(1){
      m_time_ms = TimeLocal();
      int i;
      for(i = 0; i < (2*NUM_VALID_PARITIES); i++)
-       m_order_opened_directions[i] = 0;  
+       m_order_opened_directions[i] = false;  
    }
    void Init(void);
    void Run(void);
@@ -562,6 +562,43 @@ int Reorganizer::OpenRandomOrders(void)
 
 int Reorganizer::OpenOrdersNecatiMethod(void)
 {
+  int i;
+  string comment;
+  int i_comment;
+  int ticket = -1;
+  int i_try = 0, num_max_trials = 5;
+   
+  FindParityLots(ex_lot);
+  
+  for(i = 0; i < NUM_VALID_PARITIES; i++){
+    i_comment = MathRand()%3 + 1;
+    comment = StringConcatenate(IntegerToString(i_comment), "_", IntegerToString(ex_magic_no));
+    
+    double lot_to_open = m_parity_lots[i];
+    string sym = mcs_valid_parities[i];
+    
+    if(m_order_opened_directions[2*i] == false){
+      for(i_try = 0; i_try < num_max_trials; i_try++){
+        ticket = OrderSend(sym, OP_SELL, lot_to_open, MarketInfo(sym, MODE_BID), 10, 0, 0, comment, ex_magic_no);
+        if (ticket != -1) break;
+      }//end max trials
+      if(i_try < num_max_trials){
+        m_order_opened_directions[2*i] = true;
+      }
+    }//end if sell
+    
+    if(m_order_opened_directions[2*i+1] == false){
+      for(i_try = 0; i_try < num_max_trials; i_try++){
+        ticket = OrderSend(sym, OP_BUY, lot_to_open, MarketInfo(sym, MODE_ASK), 10, 0, 0, comment, ex_magic_no);
+        if (ticket != -1) break;
+      }//end max trials
+      if(i_try < num_max_trials){
+        m_order_opened_directions[2*i+1] = true;
+      }  
+    }//end if buy
+       
+  }//end for NUM_VALID_PARITIES
+  
   return 0;
 }
 
@@ -616,7 +653,7 @@ void Reorganizer::Run(void)
         OpenRandomOrders();
       }else if(m_order_open_method == 1){
         // open orders in short and long
-        
+        OpenOrdersNecatiMethod();
       }//end if m_order_open_method
    }//end open random orders   
 }
