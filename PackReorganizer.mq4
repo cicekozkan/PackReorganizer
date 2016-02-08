@@ -313,7 +313,8 @@ class Reorganizer{
    double m_time_ms;
    double m_total_profit;
    MqlDateTime m_start_date;
-   int  m_order_open_method; ///< How to open new orders? 0=Random? 1=Necati  
+   int  m_order_open_method; ///< How to open new orders? 0=Random? 1=Necati
+   bool m_order_opened_directions[2*NUM_VALID_PARITIES]; ///< First index is sell, second index is buy for each order in mcs_valid_parities array  
    bool IsValidParity(string parity);
    bool IsValidComment(string comment);
    bool IsValidMagic(void);
@@ -322,9 +323,15 @@ class Reorganizer{
    void Organize(void);
    void FindParityLots(double target_usd_lot);
    int TimeToOpenNewOrders(void);
-   void OpenRandomOrders(double target_usd_lot, int num_orders_to_open, string comment, int magic_no);
+   int OpenRandomOrders(void);
+   int OpenOrdersNecatiMethod(void);
 public:
-   Reorganizer():m_total_profit(0), m_order_open_method(0){m_time_ms = TimeLocal();}
+   Reorganizer():m_total_profit(0), m_order_open_method(0){
+     m_time_ms = TimeLocal();
+     int i;
+     for(i = 0; i < (2*NUM_VALID_PARITIES); i++)
+       m_order_opened_directions[i] = 0;  
+   }
    void Init(void);
    void Run(void);
    void Stop(void);
@@ -510,7 +517,7 @@ void Reorganizer::FindParityLots(double target_usd_lot)
 /*! \return True if pre-determined time has elapsed to open new orders */
 int Reorganizer::TimeToOpenNewOrders(void)
 {
-   double interval_ms = 14400; // open new orders in every 2 hours
+   double interval_ms = 5000; // open new orders in every interval_ms 
    double current_time_ms = TimeLocal();
    int is_it = 0;
     
@@ -521,31 +528,41 @@ int Reorganizer::TimeToOpenNewOrders(void)
    return is_it;
 }
 
-/*! Open random orders 
-  \param target_usd_lot: The same amount of order will be opened 
-  \param num_orders_to_open: Number of orders
-  \param comment: Order comment
-  \param magic_no: Order magic no
+/*! Open random orders for each comment
+  \return 0: success, -1: fail
 */
-void Reorganizer::OpenRandomOrders(double target_usd_lot, int num_orders_to_open, string comment, int magic_no)
+int Reorganizer::OpenRandomOrders(void)
 {
    int ticket = -1;
    int k = 0;
-   int max_num_trials = 5;   
+   int max_num_trials = 5; 
+   int num_orders_to_open = 1; 
+   string comment;
+   int i_comment;
    
-   FindParityLots(target_usd_lot);
+   FindParityLots(ex_lot);     
    
-   for (int i=0; i < num_orders_to_open; i++){
-      int rand_index = MathRand() % NUM_VALID_PARITIES;
-      string sym = mcs_valid_parities[rand_index];
-      double lot_to_open = m_parity_lots[rand_index];
-      int buy = MathRand()%2;
-      for (k = 0; k < max_num_trials; k++){
-         ticket = OrderSend(sym, buy, lot_to_open, MarketInfo(sym, buy?MODE_BID:MODE_ASK), 10, 0, 0, comment, magic_no);
-         if (ticket != -1) break;
-      }//end max trials
-      if (k == max_num_trials)   Print(sym, " Paritesinde emir acilamadi. Hata kodu = ", GetLastError());
-   } 
+   for(int i=0; i < num_orders_to_open; i++){      
+      for(i_comment = 0; i_comment < 3; i_comment++){
+        comment = StringConcatenate(IntegerToString(i_comment), "_", IntegerToString(ex_magic_no));
+        int rand_index = MathRand() % NUM_VALID_PARITIES;
+        string sym = mcs_valid_parities[rand_index];
+        double lot_to_open = m_parity_lots[rand_index];
+        int buy = MathRand()%2;
+        for (k = 0; k < max_num_trials; k++){
+           ticket = OrderSend(sym, buy, lot_to_open, MarketInfo(sym, buy?MODE_BID:MODE_ASK), 10, 0, 0, comment, ex_magic_no);
+           if (ticket != -1) break;
+        }//end max trials
+        if (k == max_num_trials)  return -1;
+      }//end i_comment     
+   }//end for
+   
+   return 0; 
+}
+
+int Reorganizer::OpenOrdersNecatiMethod(void)
+{
+  return 0;
 }
 
 void Reorganizer::Run(void)
@@ -595,16 +612,11 @@ void Reorganizer::Run(void)
    if(TimeToOpenNewOrders()){
       FileWrite(ms_alfh,"Open new orders");
       if(m_order_open_method == 0){
-        string magic, comment;
-        int num_orders = 1;
-        magic = IntegerToString(ex_magic_no);
-        comment = StringConcatenate("1_", magic);
-        OpenRandomOrders(ex_lot, num_orders, comment, ex_magic_no);
-        comment = StringConcatenate("2_", magic);
-        OpenRandomOrders(ex_lot, num_orders, comment, ex_magic_no);
-        comment = StringConcatenate("3_", magic);
-        OpenRandomOrders(ex_lot, num_orders, comment, ex_magic_no);
+        // open random orders
+        OpenRandomOrders();
       }else if(m_order_open_method == 1){
+        // open orders in short and long
+        
       }//end if m_order_open_method
    }//end open random orders   
 }
