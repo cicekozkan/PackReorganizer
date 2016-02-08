@@ -517,7 +517,7 @@ void Reorganizer::FindParityLots(double target_usd_lot)
 /*! \return True if pre-determined time has elapsed to open new orders */
 int Reorganizer::TimeToOpenNewOrders(void)
 {
-   double interval_ms = 5000; // open new orders in every interval_ms 
+   double interval_ms = 30; // open new orders in every interval_ms 
    double current_time_ms = TimeLocal();
    int is_it = 0;
     
@@ -543,7 +543,7 @@ int Reorganizer::OpenRandomOrders(void)
    FindParityLots(ex_lot);     
    
    for(int i=0; i < num_orders_to_open; i++){      
-      for(i_comment = 0; i_comment < 3; i_comment++){
+      for(i_comment = 1; i_comment <= 3; i_comment++){
         comment = StringConcatenate(IntegerToString(i_comment), "_", IntegerToString(ex_magic_no));
         int rand_index = MathRand() % NUM_VALID_PARITIES;
         string sym = mcs_valid_parities[rand_index];
