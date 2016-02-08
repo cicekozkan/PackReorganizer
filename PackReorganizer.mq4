@@ -313,6 +313,7 @@ class Reorganizer{
    double m_time_ms;
    double m_total_profit;
    MqlDateTime m_start_date;
+   int  m_order_open_method; ///< How to open new orders? 0=Random? 1=Necati  
    bool IsValidParity(string parity);
    bool IsValidComment(string comment);
    bool IsValidMagic(void);
@@ -323,7 +324,7 @@ class Reorganizer{
    int TimeToOpenNewOrders(void);
    void OpenRandomOrders(double target_usd_lot, int num_orders_to_open, string comment, int magic_no);
 public:
-   Reorganizer():m_total_profit(0){m_time_ms = TimeLocal();}
+   Reorganizer():m_total_profit(0), m_order_open_method(0){m_time_ms = TimeLocal();}
    void Init(void);
    void Run(void);
    void Stop(void);
@@ -593,15 +594,18 @@ void Reorganizer::Run(void)
       
    if(TimeToOpenNewOrders()){
       FileWrite(ms_alfh,"Open new orders");
-      string magic, comment;
-      int num_orders = 1;
-      magic = IntegerToString(ex_magic_no);
-      comment = StringConcatenate("1_", magic);
-      OpenRandomOrders(ex_lot, num_orders, comment, ex_magic_no);
-      comment = StringConcatenate("2_", magic);
-      OpenRandomOrders(ex_lot, num_orders, comment, ex_magic_no);
-      comment = StringConcatenate("3_", magic);
-      OpenRandomOrders(ex_lot, num_orders, comment, ex_magic_no);
+      if(m_order_open_method == 0){
+        string magic, comment;
+        int num_orders = 1;
+        magic = IntegerToString(ex_magic_no);
+        comment = StringConcatenate("1_", magic);
+        OpenRandomOrders(ex_lot, num_orders, comment, ex_magic_no);
+        comment = StringConcatenate("2_", magic);
+        OpenRandomOrders(ex_lot, num_orders, comment, ex_magic_no);
+        comment = StringConcatenate("3_", magic);
+        OpenRandomOrders(ex_lot, num_orders, comment, ex_magic_no);
+      }else if(m_order_open_method == 1){
+      }//end if m_order_open_method
    }//end open random orders   
 }
 
