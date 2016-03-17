@@ -5,9 +5,9 @@
 //|                                Copyright 2015, MQL Project Group |
 //|                                             https://www.mql5.com |
 //+------------------------------------------------------------------+
-#property copyright "Copyright 2015, MetaQuotes Software Corp."
-#property link      "https://www.mql5.com"
-#property version   "1.00"
+#property copyright "Necati Ergin & Ozkan Cicek"
+#property link      ""
+#property version   "1.0.0.0"
 #property strict
 
 #define  MAX_ORDERS_IN_A_PACK 4
