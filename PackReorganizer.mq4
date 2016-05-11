@@ -575,6 +575,7 @@ int Reorganizer::OpenOrdersNecatiMethod(void)
     comment = StringConcatenate(IntegerToString(i_comment), "_", IntegerToString(ex_magic_no));
     
     double lot_to_open = m_parity_lots[i];
+    if(lot_to_open < 0.1) lot_to_open = 0.1; // the minimum amount of lot is 0.1
     string sym = mcs_valid_parities[i];
     
     if(m_order_opened_directions[2*i] == false){
@@ -584,6 +585,8 @@ int Reorganizer::OpenOrdersNecatiMethod(void)
       }//end max trials
       if(i_try < num_max_trials){
         m_order_opened_directions[2*i] = true;
+      }else{
+        FileWrite(ms_alfh, "\nCannot open sell order for ", sym, " parity. The amount of the lot = ", lot_to_open);
       }
     }//end if sell
     
@@ -594,6 +597,8 @@ int Reorganizer::OpenOrdersNecatiMethod(void)
       }//end max trials
       if(i_try < num_max_trials){
         m_order_opened_directions[2*i+1] = true;
+      }else{
+        FileWrite(ms_alfh, "\nCannot open buy order for ", sym, " parity. The amount of the lot = ", lot_to_open);
       }  
     }//end if buy
        
