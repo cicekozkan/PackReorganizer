@@ -586,7 +586,7 @@ int Reorganizer::OpenOrdersNecatiMethod(void)
       if(i_try < num_max_trials){
         m_order_opened_directions[2*i] = true;
       }else{
-        FileWrite(ms_alfh, "\nCannot open sell order for ", sym, " parity. The amount of the lot = ", lot_to_open);
+        FileWrite(ms_alfh, "\nCannot open sell order for ", sym, " parity. The amount of the lot = ", lot_to_open, ". The error code = ", GetLastError());
       }
     }//end if sell
     
@@ -598,7 +598,7 @@ int Reorganizer::OpenOrdersNecatiMethod(void)
       if(i_try < num_max_trials){
         m_order_opened_directions[2*i+1] = true;
       }else{
-        FileWrite(ms_alfh, "\nCannot open buy order for ", sym, " parity. The amount of the lot = ", lot_to_open);
+        FileWrite(ms_alfh, "\nCannot open buy order for ", sym, " parity. The amount of the lot = ", lot_to_open, ". The error code = ", GetLastError());
       }  
     }//end if buy
        
